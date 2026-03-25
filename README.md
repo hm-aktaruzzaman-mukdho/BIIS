@@ -24,6 +24,84 @@ Hall Seat Management System for university students and provosts. Built with **R
 
 ---
 
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Vite + React |
+| Backend | Node.js + Express |
+| Database | PostgreSQL (Neon) |
+| Auth | Session-based (express-session + connect-pg-simple) |
+| AI | Google Gemini API + rule-based fallback |
+| File Uploads | Multer |
+| Deployment | Docker + Render |
+
+---
+## Prerequisites
+
+- **Node.js** v18+ and **npm**
+- **PostgreSQL** database (local or hosted, e.g. [Neon](https://neon.tech))
+- **Git**
+
+### Install Node.js on Linux (Ubuntu/Debian)
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node -v && npm -v
+```
+
+---
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ahtasham67/CSE-326_BIIS.git
+cd CSE-326_BIIS
+```
+
+### 2. Configure environment variables
+
+```bash
+cp server/.env.example server/.env
+```
+
+Edit `server/.env` and set your values:
+
+```env
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+SESSION_SECRET=your-random-secret-key
+GEMINI_API_KEY=your-google-gemini-api-key
+PORT=5001
+NODE_ENV=development
+```
+
+### 3. Run the setup script
+
+```bash
+chmod +x setup.sh start.sh
+./setup.sh
+```
+
+This will:
+- Install all dependencies (root, server, client)
+- Run database migrations and seed sample data
+
+### 4. Start the application
+
+```bash
+./start.sh
+```
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:5001 |
+
+---
+
 ## Project Structure
 
 ```
