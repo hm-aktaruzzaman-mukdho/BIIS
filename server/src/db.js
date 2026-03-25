@@ -1,10 +1,16 @@
 const { Pool } = require('pg');
 
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL,
+//   ssl: {
+//     rejectUnauthorized: false
+//   }
+// });
+
+//need to conditionally set ssl for local development vs production
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ...(isLocal ? {} : { ssl: { rejectUnauthorized: false } })
 });
 
 pool.on('error', (err) => {
@@ -12,3 +18,5 @@ pool.on('error', (err) => {
 });
 
 module.exports = pool;
+
+
