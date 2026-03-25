@@ -117,6 +117,53 @@ async function migrate() {
       ['Dr. Nasreen Akter', 'provost2@biis.edu', provostPass, 'Electrical Engineering']
     );
 
+
+    // Create halls
+    const h1 = await client.query(
+      `INSERT INTO halls (name, provost_id) VALUES ($1, $2) RETURNING id`,
+      ['Shahid Salimullah Muslim Hall', p1.rows[0].id]
+    );
+    const h2 = await client.query(
+      `INSERT INTO halls (name, provost_id) VALUES ($1, $2) RETURNING id`,
+      ['Fazlul Huq Muslim Hall', p2.rows[0].id]
+    );
+
+    // Create rooms and seats for Hall 1 (3 floors, 5 rooms/floor)
+    for (let floor = 1; floor <= 3; floor++) {
+      for (let room = 1; room <= 5; room++) {
+        const roomNum = `${floor}${String(room).padStart(2, '0')}`;
+        const r = await client.query(
+          `INSERT INTO rooms (hall_id, room_number, floor, capacity) VALUES ($1, $2, $3, 4) RETURNING id`,
+          [h1.rows[0].id, roomNum, floor]
+        );
+        for (let seat = 1; seat <= 4; seat++) {
+          const status = (floor === 1 && room <= 3 && seat <= 2) ? 'occupied' : 'available';
+          await client.query(
+            `INSERT INTO seats (room_id, seat_number, status) VALUES ($1, $2, $3)`,
+            [r.rows[0].id, seat, status]
+          );
+        }
+      }
+    }
+
+    // Create rooms and seats for Hall 2 (2 floors, 4 rooms/floor)
+    for (let floor = 1; floor <= 2; floor++) {
+      for (let room = 1; room <= 4; room++) {
+        const roomNum = `${floor}${String(room).padStart(2, '0')}`;
+        const r = await client.query(
+          `INSERT INTO rooms (hall_id, room_number, floor, capacity) VALUES ($1, $2, $3, 4) RETURNING id`,
+          [h2.rows[0].id, roomNum, floor]
+        );
+        for (let seat = 1; seat <= 4; seat++) {
+          const status = (floor === 1 && room <= 2 && seat <= 3) ? 'occupied' : 'available';
+          await client.query(
+            `INSERT INTO seats (room_id, seat_number, status) VALUES ($1, $2, $3)`,
+            [r.rows[0].id, seat, status]
+          );
+        }
+      }
+    }
+
   } catch (err) {
     console.error('❌ Migration failed:', err.message);
     throw err;
