@@ -129,6 +129,26 @@ async function testAuth() {
 
 
 
+async function testResidents() {
+  console.log('\n📋 Residents');
+
+  // List — provost
+  let r = await req('GET', '/api/residents', null, provostCookie);
+  log(r.status === 200 && Array.isArray(r.data.residents) ? 'PASS' : 'FAIL',
+    'List — provost sees residents', `count=${r.data.residents?.length}`);
+
+  // List — student blocked
+  r = await req('GET', '/api/residents', null, studentCookie);
+  log(r.status === 403 ? 'PASS' : 'FAIL',
+    'List — student blocked returns 403', `status=${r.status}`);
+
+  // List — unauthenticated
+  r = await req('GET', '/api/residents');
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'List — unauthenticated returns 401', `status=${r.status}`);
+    }
+
+
 async function run() {
   console.log('═══════════════════════════════════════');
   console.log('  BIIS API Test Suite');
@@ -138,12 +158,12 @@ async function run() {
   try {
     await testHealth();
     await testAuth();
+    await testResidents();
     await testSeats();
     await testApplications();
     await testApprovalAndPayment();
     await testCancellation();
     await testSeatChanges();
-    await testResidents();
     await testLogout();
   } catch (err) {
     console.error('\nFatal error:', err.message);
