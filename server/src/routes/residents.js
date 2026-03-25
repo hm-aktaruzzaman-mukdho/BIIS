@@ -51,3 +51,44 @@ router.get('/', requireRole('provost'), async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// PATCH /api/residents/:id — update resident info (dining days, absence)
+router.patch('/:id', requireRole('provost'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dining_days, absence_count } = req.body;
+
+    const updates = [];
+    const params = [];
+
+    if (dining_days !== undefined) {
+      params.push(dining_days);
+      updates.push(`dining_days = $${params.length}`);
+    }
+    if (absence_count !== undefined) {
+      params.push(absence_count);
+      updates.push(`absence_count = $${params.length}`);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    params.push(id);
+    const result = await pool.query(
+      `UPDATE residents SET ${updates.join(', ')} WHERE id = $${params.length} RETURNING *`,
+      params
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Resident not found' });
+    }
+
+    res.json({ resident: result.rows[0] });
+  } catch (err) {
+    console.error('Update resident error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;
