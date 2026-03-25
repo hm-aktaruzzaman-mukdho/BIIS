@@ -58,8 +58,8 @@ node -v && npm -v
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ahtasham67/CSE-326_BIIS.git
-cd CSE-326_BIIS
+git clone https://github.com/Mishalx21/BIIS.git
+cd BIIS
 ```
 
 ### 2. Configure environment variables
