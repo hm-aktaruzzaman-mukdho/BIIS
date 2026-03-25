@@ -22,4 +22,25 @@ const schema = `
     year INT,
     created_at TIMESTAMP DEFAULT NOW()
   );
+
+  CREATE TABLE IF NOT EXISTS halls (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    provost_id INT REFERENCES users(id) ON DELETE SET NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS rooms (
+    id SERIAL PRIMARY KEY,
+    hall_id INT REFERENCES halls(id) ON DELETE CASCADE,
+    room_number VARCHAR(20) NOT NULL,
+    floor INT NOT NULL,
+    capacity INT NOT NULL DEFAULT 4
+  );
+
+  CREATE TABLE IF NOT EXISTS seats (
+    id SERIAL PRIMARY KEY,
+    room_id INT REFERENCES rooms(id) ON DELETE CASCADE,
+    seat_number INT NOT NULL,
+    status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'occupied', 'reserved'))
+  );
 `;
