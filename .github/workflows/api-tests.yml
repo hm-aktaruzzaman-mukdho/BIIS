@@ -1,0 +1,60 @@
+name: BIIS API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: biis_test
+          POSTGRES_PASSWORD: biis_test_pass
+          POSTGRES_DB: biis_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U biis_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://biis_test:biis_test_pass@localhost:5432/biis_test
+      SESSION_SECRET: ci-test-secret
+      PORT: 5001
+      NODE_ENV: test
+      DB_SSL: 'false'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Run database migrations
+        run: cd server && node src/migrate.js
+
+      - name: Start server
+        run: |
+          cd server && node src/index.js &
+          sleep 3
+          curl -f http://localhost:5001/api/health || exit 1
+
+      - name: Run API tests
+        run: node server/tests/api.test.js
