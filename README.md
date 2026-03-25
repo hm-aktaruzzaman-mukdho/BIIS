@@ -22,6 +22,34 @@ Hall Seat Management System for university students and provosts. Built with **R
 - 🏠 View all hall residents — room, dining days, absence records
 
 
+---
+
+## Project Structure
+
+```
+CSE-326_BIIS/
+├── server/                     # Express backend
+│   ├── src/
+│   │   ├── index.js            # Server + expiry cleanup job
+│   │   ├── db.js               # PostgreSQL connection pool
+│   │   ├── migrate.js          # Schema + seed data
+│   │   ├── middleware/auth.js  # Session auth middleware
+│   │   ├── routes/
+│   │   │   ├── auth.js         # Login, register, logout
+│   │   │   ├── seats.js        # Seat availability
+│   │   │   ├── applications.js # Apply, pay, cancel, resident-check
+│   │   │   ├── seatChanges.js  # Seat change requests
+│   │   │   └── residents.js    # Hall residents
+│   │   └── services/ai.js     # Gemini AI scoring (5 factors, /10)
+│   └── .env.example
+├── client/                     # Vite + React frontend
+│   └── src/
+├── setup.sh / start.sh         # Dev scripts
+└── README.md
+```
+
+---
+
 
 ## Contributors
 
@@ -31,3 +59,4 @@ Hall Seat Management System for university students and provosts. Built with **R
 - **Mishal Rahman** — CSE, BUET
 - **Sadia Tasnim** — CSE, BUET
 - **Mobasharul Islam Tonmoy** — CSE, BUET
+
