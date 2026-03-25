@@ -80,3 +80,21 @@ router.get('/stats', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// GET /api/seats/halls — list all halls
+router.get('/halls', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT h.id, h.name, u.name AS provost_name
+      FROM halls h
+      LEFT JOIN users u ON h.provost_id = u.id
+      ORDER BY h.name
+    `);
+    res.json({ halls: result.rows });
+  } catch (err) {
+    console.error('Halls error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;
