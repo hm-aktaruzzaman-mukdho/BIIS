@@ -164,6 +164,45 @@ async function migrate() {
       }
     }
 
+    // Create sample students
+    const studentPass = await bcrypt.hash('student123', 10);
+    const students = [
+      ['Rahim Uddin', 'rahim@student.edu', '2021001', 'Computer Science', 3],
+      ['Fatima Begum', 'fatima@student.edu', '2021002', 'Electrical Engineering', 3],
+      ['Arif Hasan', 'arif@student.edu', '2022001', 'Physics', 2],
+      ['Nusrat Jahan', 'nusrat@student.edu', '2022002', 'Mathematics', 2],
+      ['Tanvir Ahmed', 'tanvir@student.edu', '2023001', 'Chemistry', 1],
+    ];
+
+    const studentIds = [];
+    for (const [name, email, sid, dept, year] of students) {
+      const res = await client.query(
+        `INSERT INTO users (name, email, password_hash, role, student_id, department, year)
+         VALUES ($1, $2, $3, 'student', $4, $5, $6) RETURNING id`,
+        [name, email, studentPass, sid, dept, year]
+      );
+      studentIds.push(res.rows[0].id);
+    }
+
+    // Assign some residents (first 3 students in Hall 1)
+    const occupiedSeats = await client.query(
+      `SELECT s.id FROM seats s JOIN rooms r ON s.room_id = r.id WHERE r.hall_id = $1 AND s.status = 'occupied' LIMIT 3`,
+      [h1.rows[0].id]
+    );
+    const diningOptions = [
+      ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
+      ['Saturday', 'Monday', 'Wednesday', 'Thursday'],
+      ['Sunday', 'Tuesday', 'Thursday'],
+    ];
+
+    for (let i = 0; i < Math.min(3, occupiedSeats.rows.length); i++) {
+      await client.query(
+        `INSERT INTO residents (student_id, seat_id, hall_id, dining_days, absence_count)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [studentIds[i], occupiedSeats.rows[i].id, h1.rows[0].id, diningOptions[i], Math.floor(Math.random() * 5)]
+      );
+    }
+
   } catch (err) {
     console.error('❌ Migration failed:', err.message);
     throw err;
