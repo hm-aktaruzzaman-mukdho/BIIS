@@ -1,0 +1,20 @@
+{
+  "name": "biis",
+  "version": "1.0.0",
+  "description": "BIIS - Hall Seat Management System",
+  "scripts": {
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "install:all": "npm run install:server && npm run install:client",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && node src/index.js",
+    "migrate": "cd server && node src/migrate.js",
+    "render-build": "npm run install:all && npm run build && npm run migrate"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
