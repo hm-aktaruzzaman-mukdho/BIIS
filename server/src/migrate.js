@@ -203,6 +203,35 @@ async function migrate() {
       );
     }
 
+    // Create sample applications
+    await client.query(
+      `INSERT INTO applications (student_id, hall_id, preferred_room_id, reason, status, ai_summary, ai_recommendation)
+       VALUES ($1, $2, (SELECT id FROM rooms WHERE hall_id = $2 LIMIT 1), $3, 'pending', $4, 'strong')`,
+      [studentIds[3], h1.rows[0].id,
+       'I am from a remote district and my family cannot afford private housing near the university. I need hall accommodation to continue my studies. I have attached my financial documents.',
+       'Student from a remote area with financial constraints. Has provided supporting documents. Strong case for accommodation.']
+    );
+
+    await client.query(
+      `INSERT INTO applications (student_id, hall_id, preferred_room_id, reason, status, ai_summary, ai_recommendation)
+       VALUES ($1, $2, (SELECT id FROM rooms WHERE hall_id = $2 LIMIT 1), $3, 'pending', $4, 'moderate')`,
+      [studentIds[4], h1.rows[0].id,
+       'I would like to stay in the hall for convenience as my classes start early in the morning.',
+       'Student requesting accommodation for convenience. No financial or medical urgency documented. Moderate recommendation.']
+    );
+
+    console.log('✅ Seed data created successfully');
+    console.log('');
+    console.log('📋 Test accounts:');
+    console.log('   Provost: provost1@biis.edu / provost123');
+    console.log('   Provost: provost2@biis.edu / provost123');
+    console.log('   Student: rahim@student.edu / student123');
+    console.log('   Student: fatima@student.edu / student123');
+    console.log('   Student: arif@student.edu / student123');
+    console.log('   Student: nusrat@student.edu / student123');
+    console.log('   Student: tanvir@student.edu / student123');
+
+
   } catch (err) {
     console.error('❌ Migration failed:', err.message);
     throw err;
