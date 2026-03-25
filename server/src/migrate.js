@@ -95,6 +95,28 @@ async function migrate() {
     await client.query(schema);
     console.log('✅ Schema created successfully');
 
+    // Check if seed data already exists
+    const { rows } = await client.query('SELECT COUNT(*) FROM users');
+    if (parseInt(rows[0].count) > 0) {
+      console.log('ℹ️  Seed data already exists, skipping...');
+      return;
+    }
+
+    console.log('🌱 Seeding data...');
+
+    // Create provost users
+    const provostPass = await bcrypt.hash('provost123', 10);
+    const p1 = await client.query(
+      `INSERT INTO users (name, email, password_hash, role, department) 
+       VALUES ($1, $2, $3, 'provost', $4) RETURNING id`,
+      ['Dr. Kamal Hossain', 'provost1@biis.edu', provostPass, 'Computer Science']
+    );
+    const p2 = await client.query(
+      `INSERT INTO users (name, email, password_hash, role, department) 
+       VALUES ($1, $2, $3, 'provost', $4) RETURNING id`,
+      ['Dr. Nasreen Akter', 'provost2@biis.edu', provostPass, 'Electrical Engineering']
+    );
+
   } catch (err) {
     console.error('❌ Migration failed:', err.message);
     throw err;
