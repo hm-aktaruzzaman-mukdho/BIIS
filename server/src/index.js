@@ -73,6 +73,23 @@ app.get("/api/health", (req, res) => {
 });
 
 
+// Serve the React build if it exists (production / Docker deployment)
+const clientBuild = path.join(__dirname, "../../client/dist");
+const fs = require("fs");
+if (fs.existsSync(clientBuild)) {
+  console.log("📦 Serving React build from", clientBuild);
+  app.use(express.static(clientBuild));
+
+  // SPA fallback — serve index.html for all non-API routes
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuild, "index.html"));
+  });
+}
+
+// Will add timer function here to check for seat change deadlines and update seat statuses accordingly
+
+
+
 
 
 app.listen(PORT, "0.0.0.0", () => {
