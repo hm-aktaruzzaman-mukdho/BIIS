@@ -229,3 +229,130 @@ router.patch('/:id', requireRole('provost'), async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+router.post('/:id/pay', requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== 'student') {
+      return res.status(403).json({ error: 'Only students can make payments' });
+    }
+
+    const { id } = req.params;
+
+    const app = await pool.query(
+      `SELECT * FROM applications WHERE id = $1 AND student_id = $2`,
+      [id, req.session.user.id]
+    );
+
+    if (app.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const application = app.rows[0];
+
+    if (application.status !== 'approved' || application.payment_status !== 'pending') {
+      return res.status(400).json({ error: 'This application is not awaiting payment' });
+    }
+
+    if (new Date(application.payment_deadline) < new Date()) {
+      await pool.query(
+        `UPDATE applications SET status = 'expired', payment_status = 'expired', updated_at = NOW() WHERE id = $1`,
+        [id]
+      );
+      if (application.reserved_seat_id) {
+        await pool.query(`UPDATE seats SET status = 'available' WHERE id = $1`, [application.reserved_seat_id]);
+      }
+      return res.status(400).json({ error: 'Payment deadline has expired. Your reserved seat has been released.' });
+    }
+
+    if (application.reserved_seat_id) {
+      await pool.query(`UPDATE seats SET status = 'occupied' WHERE id = $1`, [application.reserved_seat_id]);
+    }
+
+    await pool.query(
+      `INSERT INTO residents (student_id, seat_id, hall_id, dining_days)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (student_id) DO UPDATE SET seat_id = $2, hall_id = $3, assigned_at = NOW()`,
+      [application.student_id, application.reserved_seat_id, application.hall_id,
+       ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']]
+    );
+
+    const result = await pool.query(
+      `UPDATE applications SET payment_status = 'paid', paid_at = NOW(), updated_at = NOW() WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    res.json({ application: result.rows[0], message: 'Payment successful! Seat has been assigned.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post('/:id/cancel', requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== 'student') {
+      return res.status(403).json({ error: 'Only students can cancel applications' });
+    }
+
+    const { id } = req.params;
+
+    const app = await pool.query(
+      `SELECT * FROM applications WHERE id = $1 AND student_id = $2`,
+      [id, req.session.user.id]
+    );
+
+    if (app.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const application = app.rows[0];
+
+    if (application.status === 'pending') {
+      await pool.query(
+        `UPDATE applications SET status = 'cancelled', updated_at = NOW() WHERE id = $1`,
+        [id]
+      );
+    } else if (application.status === 'approved' && application.payment_status === 'pending') {
+      if (application.reserved_seat_id) {
+        await pool.query(`UPDATE seats SET status = 'available' WHERE id = $1`, [application.reserved_seat_id]);
+      }
+      await pool.query(
+        `UPDATE applications SET status = 'cancelled', payment_status = 'expired', updated_at = NOW() WHERE id = $1`,
+        [id]
+      );
+    } else {
+      return res.status(400).json({ error: 'This application cannot be cancelled' });
+    }
+
+    const result = await pool.query('SELECT * FROM applications WHERE id = $1', [id]);
+
+    res.json({ application: result.rows[0], message: 'Application cancelled successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.get('/resident-check', requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== 'student') {
+      return res.json({ isResident: false });
+    }
+    const result = await pool.query(
+      `SELECT r.id, rm.room_number, s.seat_number, h.name AS hall_name
+       FROM residents r
+       JOIN seats s ON r.seat_id = s.id
+       JOIN rooms rm ON s.room_id = rm.id
+       JOIN halls h ON r.hall_id = h.id
+       WHERE r.student_id = $1`,
+      [req.session.user.id]
+    );
+    if (result.rows.length > 0) {
+      return res.json({ isResident: true, resident: result.rows[0] });
+    }
+    res.json({ isResident: false });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
