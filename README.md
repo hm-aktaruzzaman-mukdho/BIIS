@@ -31,3 +31,4 @@ Hall Seat Management System for university students and provosts. Built with **R
 - **Mishal Rahman** — CSE, BUET
 - **Sadia Tasnim** — CSE, BUET
 - **Mobasharul Islam Tonmoy** — CSE, BUET
+
