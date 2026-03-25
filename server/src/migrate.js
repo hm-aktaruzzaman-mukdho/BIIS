@@ -86,3 +86,22 @@ const schema = `
     assigned_at TIMESTAMP DEFAULT NOW()
   );
 `;
+
+
+async function migrate() {
+  const client = await pool.connect();
+  try {
+    console.log('🔄 Running migrations...');
+    await client.query(schema);
+    console.log('✅ Schema created successfully');
+
+  } catch (err) {
+    console.error('❌ Migration failed:', err.message);
+    throw err;
+  } finally {
+    client.release();
+    await pool.end();
+  }
+}
+
+migrate();
