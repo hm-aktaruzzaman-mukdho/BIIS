@@ -27,7 +27,8 @@ Hall Seat Management System for university students and provosts. Built with **R
 
 - **Ahtashamul Haque** — CSE, BUET
 - **H M Aktaruzzaman Mukdho** — CSE, BUET
-- **Sheikh Ifti** — CSE, BUET
+- **Sheikh Iftikharun Nisa** — CSE, BUET
 - **Mishal Rahman** — CSE, BUET
 - **Sadia Tasnim** — CSE, BUET
 - **Mobasharul Islam Tonmoy** — CSE, BUET
+
