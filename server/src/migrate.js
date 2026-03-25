@@ -43,4 +43,46 @@ const schema = `
     seat_number INT NOT NULL,
     status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'occupied', 'reserved'))
   );
+
+  CREATE TABLE IF NOT EXISTS applications (
+    id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES users(id) ON DELETE CASCADE,
+    hall_id INT REFERENCES halls(id) ON DELETE CASCADE,
+    preferred_room_id INT REFERENCES rooms(id) ON DELETE SET NULL,
+    reason TEXT NOT NULL,
+    document_url VARCHAR(500),
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied', 'cancelled', 'expired')),
+    ai_summary TEXT,
+    ai_recommendation VARCHAR(20) CHECK (ai_recommendation IN ('strong', 'moderate', 'weak')),
+    ai_score INT CHECK (ai_score >= 1 AND ai_score <= 10),
+    ai_reasons JSONB DEFAULT '[]',
+    feedback TEXT,
+    payment_status VARCHAR(20) DEFAULT 'not_required' CHECK (payment_status IN ('not_required', 'pending', 'paid', 'expired')),
+    payment_deadline TIMESTAMP,
+    paid_at TIMESTAMP,
+    reserved_seat_id INT REFERENCES seats(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+  );
+
+  CREATE TABLE IF NOT EXISTS seat_changes (
+    id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES users(id) ON DELETE CASCADE,
+    current_seat_id INT REFERENCES seats(id) ON DELETE SET NULL,
+    preferred_room_id INT REFERENCES rooms(id) ON DELETE SET NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied')),
+    feedback TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+
+  CREATE TABLE IF NOT EXISTS residents (
+    id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    seat_id INT REFERENCES seats(id) ON DELETE SET NULL,
+    hall_id INT REFERENCES halls(id) ON DELETE CASCADE,
+    dining_days TEXT[] DEFAULT '{}',
+    absence_count INT DEFAULT 0,
+    assigned_at TIMESTAMP DEFAULT NOW()
+  );
 `;
