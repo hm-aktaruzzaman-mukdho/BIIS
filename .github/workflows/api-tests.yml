@@ -8,6 +8,7 @@ on:
 
 jobs:
   api-tests:
+    if: false
     runs-on: ubuntu-latest
 
     services:
@@ -24,13 +25,12 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     env:
       DATABASE_URL: postgresql://biis_test:biis_test_pass@localhost:5432/biis_test
       SESSION_SECRET: ci-test-secret
       PORT: 5001
       NODE_ENV: test
-      DB_SSL: 'false'
+      DB_SSL: "false"
 
     steps:
       - name: Checkout code

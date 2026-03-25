@@ -25,9 +25,9 @@ echo ""
 echo "📦 Installing client dependencies..."
 cd client && npm install && cd ..
 
-echo ""
-echo "🗄️  Running database migrations & seeding..."
-cd server && node src/migrate.js && cd ..
+#already done
+# echo "🗄️  Running database migrations & seeding..."
+# cd server && node src/migrate.js && cd ..
 
 echo ""
 echo "✅ Setup complete!"
