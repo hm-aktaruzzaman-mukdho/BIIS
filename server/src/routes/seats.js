@@ -56,3 +56,27 @@ router.get('/', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// GET /api/seats/stats — availability summary
+router.get('/stats', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        h.id AS hall_id,
+        h.name AS hall_name,
+        COUNT(s.id) AS total_seats,
+        COUNT(CASE WHEN s.status = 'available' THEN 1 END) AS available,
+        COUNT(CASE WHEN s.status = 'occupied' THEN 1 END) AS occupied,
+        COUNT(CASE WHEN s.status = 'reserved' THEN 1 END) AS reserved
+      FROM halls h
+      JOIN rooms r ON r.hall_id = h.id
+      JOIN seats s ON s.room_id = r.id
+      GROUP BY h.id, h.name
+      ORDER BY h.name
+    `);
+    res.json({ stats: result.rows });
+  } catch (err) {
+    console.error('Stats error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
