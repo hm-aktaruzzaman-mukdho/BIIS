@@ -1,15 +1,15 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
+import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
-import Register from './pages/Register';
-import SeatAvailability from './pages/student/SeatAvailability';
-import ApplySeat from './pages/student/ApplySeat';
-import ChangeSeat from './pages/student/ChangeSeat';
-import MyApplications from './pages/student/MyApplications';
 import Applications from './pages/provost/Applications';
 import Residents from './pages/provost/Residents';
 import SeatChanges from './pages/provost/SeatChanges';
+import Register from './pages/Register';
+import ApplySeat from './pages/student/ApplySeat';
+import ChangeSeat from './pages/student/ChangeSeat';
+import MyApplications from './pages/student/MyApplications';
+import SeatAvailability from './pages/student/SeatAvailability';
 
 function ProtectedRoute({ children, role }) {
   const { user, loading } = useAuth();
