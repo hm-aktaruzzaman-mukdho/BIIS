@@ -47,3 +47,56 @@ router.post('/', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const user = req.session.user;
+
+    if (user.role === 'student') {
+      const result = await pool.query(
+        `SELECT sc.*, 
+                r_curr.room_number AS current_room, r_curr.floor AS current_floor,
+                r_pref.room_number AS preferred_room, r_pref.floor AS preferred_floor
+         FROM seat_changes sc
+         LEFT JOIN seats s ON sc.current_seat_id = s.id
+         LEFT JOIN rooms r_curr ON s.room_id = r_curr.id
+         LEFT JOIN rooms r_pref ON sc.preferred_room_id = r_pref.id
+         WHERE sc.student_id = $1
+         ORDER BY sc.created_at DESC`,
+        [user.id]
+      );
+      return res.json({ seatChanges: result.rows });
+    }
+
+    if (user.role === 'provost') {
+      const hallResult = await pool.query('SELECT id FROM halls WHERE provost_id = $1', [user.id]);
+      if (hallResult.rows.length === 0) {
+        return res.json({ seatChanges: [] });
+      }
+      const hallIds = hallResult.rows.map(h => h.id);
+
+      const result = await pool.query(
+        `SELECT sc.*,
+                u.name AS student_name, u.email AS student_email, u.student_id AS student_roll,
+                r_curr.room_number AS current_room, r_curr.floor AS current_floor,
+                s.seat_number AS current_seat_number,
+                r_pref.room_number AS preferred_room, r_pref.floor AS preferred_floor
+         FROM seat_changes sc
+         JOIN users u ON sc.student_id = u.id
+         JOIN residents res ON sc.student_id = res.student_id
+         LEFT JOIN seats s ON sc.current_seat_id = s.id
+         LEFT JOIN rooms r_curr ON s.room_id = r_curr.id
+         LEFT JOIN rooms r_pref ON sc.preferred_room_id = r_pref.id
+         WHERE res.hall_id = ANY($1)
+         ORDER BY sc.created_at DESC`,
+        [hallIds]
+      );
+      return res.json({ seatChanges: result.rows });
+    }
+
+    res.status(403).json({ error: 'Access denied' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
