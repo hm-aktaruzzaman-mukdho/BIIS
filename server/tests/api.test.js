@@ -322,6 +322,67 @@ async function testApplications() {
     'Submit — provost blocked returns 403', `status=${r.status}`);
 }
 
+async function testApprovalAndPayment() {
+  console.log('\n📋 Approval & Payment Flow');
+
+  if (!testApplicationId) { log('FAIL', 'SKIP — no application to test'); return; }
+
+  // Deny — invalid status
+  let r = await req('PATCH', `/api/applications/${testApplicationId}`, {
+    status: 'invalid'
+  }, provostCookie);
+  log(r.status === 400 ? 'PASS' : 'FAIL',
+    'Approve — invalid status returns 400', `status=${r.status}`);
+
+  // Student cannot approve
+  r = await req('PATCH', `/api/applications/${testApplicationId}`, {
+    status: 'approved'
+  }, studentCookie);
+  log(r.status === 403 ? 'PASS' : 'FAIL',
+    'Approve — student blocked returns 403', `status=${r.status}`);
+
+  // Provost approves
+  r = await req('PATCH', `/api/applications/${testApplicationId}`, {
+    status: 'approved', feedback: 'Approved for testing'
+  }, provostCookie);
+  log(r.status === 200 && r.data.application?.status === 'approved' ? 'PASS' : 'FAIL',
+    'Approve — provost approves', `payment_status=${r.data.application?.payment_status}`);
+
+  // Check payment_status is pending and deadline is set
+  r = await req('GET', '/api/applications', null, studentCookie);
+  const approved = r.data.applications?.find(a => a.id === testApplicationId);
+  log(approved?.payment_status === 'pending' && approved?.payment_deadline ? 'PASS' : 'FAIL',
+    'Approved — has payment_status=pending and deadline', 
+    `deadline=${approved?.payment_deadline?.substring(0, 19)}`);
+
+  // Pay — unauthenticated
+  r = await req('POST', `/api/applications/${testApplicationId}/pay`);
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'Pay — unauthenticated returns 401', `status=${r.status}`);
+
+  // Pay — success
+  r = await req('POST', `/api/applications/${testApplicationId}/pay`, {}, studentCookie);
+  log(r.status === 200 && r.data.application?.payment_status === 'paid' ? 'PASS' : 'FAIL',
+    'Pay — student pays successfully', `payment_status=${r.data.application?.payment_status}`);
+
+  // Pay — already paid
+  r = await req('POST', `/api/applications/${testApplicationId}/pay`, {}, studentCookie);
+  log(r.status === 400 ? 'PASS' : 'FAIL',
+    'Pay — already paid returns 400', `status=${r.status}`);
+
+  // Resident check — now a resident
+  r = await req('GET', '/api/applications/resident-check', null, studentCookie);
+  log(r.status === 200 && r.data.isResident === true ? 'PASS' : 'FAIL',
+    'Resident check — now is resident after payment', `hall=${r.data.resident?.hall_name}`);
+
+  // Submit — resident blocked
+  r = await req('POST', '/api/applications', {
+    hall_id: testHallId, reason: 'resident trying to apply again'
+  }, studentCookie);
+  log(r.status === 409 ? 'PASS' : 'FAIL',
+    'Submit — resident blocked from applying', `error=${r.data.error?.substring(0, 40)}`);
+}
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
