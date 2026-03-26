@@ -4,7 +4,6 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-module.exports = router;
 
 router.post('/', requireAuth, async (req, res) => {
   try {
@@ -100,3 +99,58 @@ router.get('/', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// PATCH /api/seat-changes/:id — provost approves or denies
+router.patch('/:id', requireRole('provost'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, feedback } = req.body;
+
+    if (!['approved', 'denied'].includes(status)) {
+      return res.status(400).json({ error: 'Status must be approved or denied' });
+    }
+
+    const sc = await pool.query('SELECT * FROM seat_changes WHERE id = $1', [id]);
+    if (sc.rows.length === 0) {
+      return res.status(404).json({ error: 'Seat change request not found' });
+    }
+
+    if (sc.rows[0].status !== 'pending') {
+      return res.status(400).json({ error: 'Request has already been processed' });
+    }
+
+    const result = await pool.query(
+      `UPDATE seat_changes SET status = $1, feedback = $2 WHERE id = $3 RETURNING *`,
+      [status, feedback || null, id]
+    );
+
+    // If approved and there's a preferred room, try to reassign
+    if (status === 'approved' && sc.rows[0].preferred_room_id) {
+      const newSeat = await pool.query(
+        `SELECT id FROM seats WHERE room_id = $1 AND status = 'available' LIMIT 1`,
+        [sc.rows[0].preferred_room_id]
+      );
+
+      if (newSeat.rows.length > 0) {
+        // Free the old seat
+        if (sc.rows[0].current_seat_id) {
+          await pool.query(`UPDATE seats SET status = 'available' WHERE id = $1`, [sc.rows[0].current_seat_id]);
+        }
+        // Occupy the new seat
+        await pool.query(`UPDATE seats SET status = 'occupied' WHERE id = $1`, [newSeat.rows[0].id]);
+        // Update resident record
+        await pool.query(
+          `UPDATE residents SET seat_id = $1, assigned_at = NOW() WHERE student_id = $2`,
+          [newSeat.rows[0].id, sc.rows[0].student_id]
+        );
+      }
+    }
+
+    res.json({ seatChange: result.rows[0] });
+  } catch (err) {
+    console.error('Update seat change error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;
