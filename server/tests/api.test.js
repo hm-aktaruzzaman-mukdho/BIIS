@@ -263,6 +263,65 @@ async function testSeats() {
   }
 }
 
+async function testApplications() {
+  console.log('\n📋 Applications');
+
+  if (!testHallId) { log('FAIL', 'SKIP — no hall found'); return; }
+
+  // Resident check — not a resident
+  let r = await req('GET', '/api/applications/resident-check', null, studentCookie);
+  log(r.status === 200 && r.data.isResident === false ? 'PASS' : 'FAIL',
+    'Resident check — test student is not resident', `isResident=${r.data.isResident}`);
+
+  // Submit — missing fields
+  r = await req('POST', '/api/applications', { hall_id: testHallId }, studentCookie);
+  log(r.status === 400 ? 'PASS' : 'FAIL',
+    'Submit — missing reason returns 400', `status=${r.status}`);
+
+  // Submit — unauthenticated
+  r = await req('POST', '/api/applications', { hall_id: testHallId, reason: 'test' });
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'Submit — unauthenticated returns 401', `status=${r.status}`);
+
+  // Submit — valid application
+  r = await req('POST', '/api/applications', {
+    hall_id: testHallId,
+    reason: 'I am from a remote district, 300km away. My family income is very low and I cannot afford housing near university. Financial hardship, scholarship student.'
+  }, studentCookie);
+  log(r.status === 201 && r.data.application ? 'PASS' : 'FAIL',
+    'Submit — valid application', `id=${r.data.application?.id}, score=${r.data.application?.ai_score}`);
+  testApplicationId = r.data.application?.id;
+
+  // Submit — duplicate pending
+  r = await req('POST', '/api/applications', {
+    hall_id: testHallId, reason: 'duplicate test'
+  }, studentCookie);
+  log(r.status === 409 ? 'PASS' : 'FAIL',
+    'Submit — duplicate pending returns 409', `status=${r.status}`);
+
+  // List — student sees own
+  r = await req('GET', '/api/applications', null, studentCookie);
+  log(r.status === 200 && r.data.applications?.some(a => a.id === testApplicationId) ? 'PASS' : 'FAIL',
+    'List — student sees own application', `count=${r.data.applications?.length}`);
+
+  // List — provost sees applications
+  r = await req('GET', '/api/applications', null, provostCookie);
+  log(r.status === 200 && Array.isArray(r.data.applications) ? 'PASS' : 'FAIL',
+    'List — provost sees applications', `count=${r.data.applications?.length}`);
+
+  // List — provost filter by status
+  r = await req('GET', '/api/applications?status=pending', null, provostCookie);
+  log(r.status === 200 ? 'PASS' : 'FAIL',
+    'List — provost filter pending', `count=${r.data.applications?.length}`);
+
+  // Submit — provost cannot submit
+  r = await req('POST', '/api/applications', {
+    hall_id: testHallId, reason: 'provost trying'
+  }, provostCookie);
+  log(r.status === 403 ? 'PASS' : 'FAIL',
+    'Submit — provost blocked returns 403', `status=${r.status}`);
+}
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
