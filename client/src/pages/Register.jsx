@@ -58,6 +58,8 @@ export default function Register() {
               <div className="role-selector">
                 <button type="button" className={`role-btn ${form.role === 'student' ? 'active' : ''}`}
                   onClick={() => updateField('role', 'student')}>Student</button>
+                <button type="button" className={`role-btn ${form.role === 'provost' ? 'active' : ''}`}
+                  onClick={() => updateField('role', 'provost')}>Provost</button>
               </div>
 
               <div className="auth-card form-row">
@@ -91,6 +93,17 @@ export default function Register() {
                     <select id="department" value={form.department} onChange={e => updateField('department', e.target.value)}>
                       <option value="">Select</option>
                       <option value="CSE">CSE</option>
+                      <option value="EEE">EEE</option>
+                      <option value="ME">ME</option>
+                      <option value="CE">CE</option>
+                      <option value="IPE">IPE</option>
+                      <option value="MME">MME</option>
+                      <option value="ARCH">ARCH</option>
+                      <option value="NAME">NAME</option>
+                      <option value="BME">BME</option>
+                      <option value="NCE">NCE</option>
+                      <option value="URP">URP</option>
+                      <option value="WRE">WRE</option>
                     </select>
                   </div>
 
@@ -102,6 +115,7 @@ export default function Register() {
                       <option value="2">Level 2</option>
                       <option value="3">Level 3</option>
                       <option value="4">Level 4</option>
+                      <option value="5">Level 5</option>
                     </select>
                   </div>
                 </>
