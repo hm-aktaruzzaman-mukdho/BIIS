@@ -37,7 +37,9 @@ export default function Register() {
     <div className="auth-page">
       <header className="biis-header">
         <div className="header-main">
+          <div className="header-logo">🏛️</div> {/* fix this */}
           <div className="header-text">
+            <div className="bangla">বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয়</div>
             <div className="english">BUET Institutional Information System</div>
           </div>
         </div>
@@ -48,6 +50,11 @@ export default function Register() {
       </nav>
 
       <div className="auth-content">
+        <div className="auth-sidebar">
+          <a href="#" className="sidebar-webmail" style={{ marginTop: 0 }}>
+            📧 BUET WebMail {/* fix this */}
+          </a>
+        </div>
         <div className="auth-main">
           <div className="auth-card" style={{ maxWidth: '480px' }}>
             <div className="auth-title">BIIS Registration</div>
@@ -133,9 +140,15 @@ export default function Register() {
                 </button>
               </div>
             </form>
+            <div className="auth-footer">
+              Already have an account? <Link to="/login">Sign In Here.</Link>
+            </div>
           </div>
         </div>
       </div>
+      <footer className="biis-footer">
+        Bangladesh University of Engineering & Technology (BUET), Dhaka-1000, Bangladesh. Tel: (880 2) 9665650 Fax: (880 2) 8613046. © All rights reserved, BUET
+      </footer>
     </div>
   );
 }
