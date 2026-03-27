@@ -1,0 +1,63 @@
+/* ===== BIIS Design System — BUET Institutional Style ===== */
+:root {
+  /* BUET Colors */
+  --maroon: #8B0000;
+  --maroon-dark: #6B0000;
+  --maroon-light: #A52A2A;
+  --cream: #F5F0E8;
+  --cream-dark: #EDE5D5;
+  --nav-bg: #2a2a2a;
+  --nav-text: #ffffff;
+  --footer-bg: #1a1a1a;
+  --sidebar-bg: #8B0000;
+  --sidebar-text: #FFFFFF;
+  --sidebar-hover: #6B0000;
+  --border-color: #C8B89A;
+  --text-dark: #333333;
+  --text-medium: #555555;
+  --text-light: #777777;
+  --white: #ffffff;
+  --link-color: #8B0000;
+  --link-hover: #A52A2A;
+  --success: #2E7D32;
+  --success-bg: #E8F5E9;
+  --warning: #E65100;
+  --warning-bg: #FFF3E0;
+  --danger: #C62828;
+  --danger-bg: #FFEBEE;
+  --info: #1565C0;
+  --info-bg: #E3F2FD;
+  --header-gradient: linear-gradient(135deg, #8B0000 0%, #5C0000 100%);
+  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--cream);
+  color: var(--text-dark);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
