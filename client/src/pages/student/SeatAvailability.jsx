@@ -3,34 +3,171 @@ import api from '../../api';
 
 export default function SeatAvailability() {
   const [rooms, setRooms] = useState([]);
+  const [halls, setHalls] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [filters, setFilters] = useState({ hall_id: '', floor: '', room_number: '' });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchRooms() {
-      try {
-        const res = await api.get('/seats');
-        setRooms(res.data.rooms);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    fetchRooms();
+    loadHalls();
+    loadStats();
   }, []);
+
+  useEffect(() => {
+    loadRooms();
+  }, [filters]);
+
+  async function loadHalls() {
+    try {
+      const res = await api.get('/seats/halls');
+      setHalls(res.data.halls);
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadStats() {
+    try {
+      const res = await api.get('/seats/stats');
+      setStats(res.data.stats);
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadRooms() {
+    setLoading(true);
+    try {
+      const params = {};
+      if (filters.hall_id) params.hall_id = filters.hall_id;
+      if (filters.floor) params.floor = filters.floor;
+      if (filters.room_number) params.room_number = filters.room_number;
+      const res = await api.get('/seats', { params });
+      setRooms(res.data.rooms);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const totalAvailable = stats.reduce((sum, s) => sum + parseInt(s.available || 0), 0);
+  const totalOccupied = stats.reduce((sum, s) => sum + parseInt(s.occupied || 0), 0);
+  const totalSeats = stats.reduce((sum, s) => sum + parseInt(s.total_seats || 0), 0);
 
   return (
     <div>
-      <h2>Seat Availability</h2>
+      <div className="page-header">
+        <h1>Seat Availability</h1>
+        <p>Browse available seats and filter by hall, floor, or room number</p>
+      </div>
 
-      {rooms.length === 0 ? (
-        <p>No rooms available</p>
-      ) : (
-        <ul>
-          {rooms.map(room => (
-            <li key={room.room_id}>
-              Room {room.room_number} - Floor {room.floor}
-            </li>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon purple">🪑</div>
+          <div className="stat-info">
+            <h3>{totalSeats}</h3>
+            <p>Total Seats</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon green">✅</div>
+          <div className="stat-info">
+            <h3>{totalAvailable}</h3>
+            <p>Available</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon red">🔒</div>
+          <div className="stat-info">
+            <h3>{totalOccupied}</h3>
+            <p>Occupied</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon blue">🏛️</div>
+          <div className="stat-info">
+            <h3>{halls.length}</h3>
+            <p>Halls</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="filters-bar">
+        <select
+          className="form-control"
+          value={filters.hall_id}
+          onChange={e => setFilters(f => ({ ...f, hall_id: e.target.value }))}
+        >
+          <option value="">All Halls</option>
+          {halls.map(h => (
+            <option key={h.id} value={h.id}>{h.name}</option>
           ))}
-        </ul>
+        </select>
+
+        <select
+          className="form-control"
+          value={filters.floor}
+          onChange={e => setFilters(f => ({ ...f, floor: e.target.value }))}
+        >
+          <option value="">All Floors</option>
+          {[1, 2, 3, 4, 5].map(f => (
+            <option key={f} value={f}>Floor {f}</option>
+          ))}
+        </select>
+
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search room number..."
+          value={filters.room_number}
+          onChange={e => setFilters(f => ({ ...f, room_number: e.target.value }))}
+        />
+      </div>
+
+      {loading ? (
+        <div className="loading"><div className="spinner"></div></div>
+      ) : rooms.length === 0 ? (
+        <div className="empty-state">
+          <div className="icon">🏠</div>
+          <h3>No rooms found</h3>
+          <p>Try adjusting your filters</p>
+        </div>
+      ) : (
+        <div className="room-grid">
+          {rooms.map(room => {
+            const available = parseInt(room.available_seats);
+            const occupied = parseInt(room.occupied_seats);
+            const total = parseInt(room.total_seats);
+
+            return (
+              <div key={room.room_id} className="room-card">
+                <div className="room-card-header">
+                  <h3>Room {room.room_number}</h3>
+                  <span className="floor-tag">Floor {room.floor}</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{room.hall_name}</p>
+
+                <div className="seat-dots">
+                  {Array.from({ length: total }, (_, i) => (
+                    <div
+                      key={i}
+                      className={`seat-dot ${i < occupied ? 'occupied' : 'available'}`}
+                      title={i < occupied ? 'Occupied' : 'Available'}
+                    >
+                      {i + 1}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="room-stats">
+                  <span>
+                    <span style={{ color: 'var(--success)' }}>●</span> {available} available
+                  </span>
+                  <span>
+                    <span style={{ color: 'var(--danger)' }}>●</span> {occupied} occupied
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
