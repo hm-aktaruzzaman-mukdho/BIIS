@@ -7,7 +7,7 @@ import Residents from './pages/provost/Residents';
 import SeatChanges from './pages/provost/SeatChanges';
 import Register from './pages/Register';
 import ApplySeat from './pages/student/ApplySeat';
-import ChangeSeat from './pages/student/ChangeSeat';
+import ChangeSeat from './pages/student/SeatChange';
 import MyApplications from './pages/student/MyApplications';
 import SeatAvailability from './pages/student/SeatAvailability';
 
