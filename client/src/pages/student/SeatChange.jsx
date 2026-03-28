@@ -47,6 +47,7 @@ export default function ChangeSeat() {
     <div>
       <div className="page-header">
         <h1>Change Seat</h1>
+        <p>Request a seat change if you're a current resident</p>
       </div>
 
       <div className="card" style={{ maxWidth: '640px', animation: 'slideUp 0.5s ease' }}>
@@ -76,10 +77,11 @@ export default function ChangeSeat() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="change-reason">Reason for Change</label>
+            <label htmlFor="change-reason">Reason for Change *</label>
             <textarea
               id="change-reason"
               className="form-control"
+              placeholder="Explain why you want to change your current seat..."
               value={form.reason}
               onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
               required
@@ -87,8 +89,8 @@ export default function ChangeSeat() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit'}
+          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
+            {loading ? 'Submitting...' : '🔄 Submit Change Request'}
           </button>
         </form>
       </div>
