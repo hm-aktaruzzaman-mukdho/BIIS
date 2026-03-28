@@ -37,7 +37,9 @@ export default function Register() {
     <div className="auth-page">
       <header className="biis-header">
         <div className="header-main">
+          <div className="header-logo">🏛️</div> {/* fix this */}
           <div className="header-text">
+            <div className="bangla">বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয়</div>
             <div className="english">BUET Institutional Information System</div>
           </div>
         </div>
@@ -48,6 +50,11 @@ export default function Register() {
       </nav>
 
       <div className="auth-content">
+        <div className="auth-sidebar">
+          <a href="#" className="sidebar-webmail" style={{ marginTop: 0 }}>
+            📧 BUET WebMail {/* fix this */}
+          </a>
+        </div>
         <div className="auth-main">
           <div className="auth-card" style={{ maxWidth: '480px' }}>
             <div className="auth-title">BIIS Registration</div>
@@ -58,6 +65,8 @@ export default function Register() {
               <div className="role-selector">
                 <button type="button" className={`role-btn ${form.role === 'student' ? 'active' : ''}`}
                   onClick={() => updateField('role', 'student')}>Student</button>
+                <button type="button" className={`role-btn ${form.role === 'provost' ? 'active' : ''}`}
+                  onClick={() => updateField('role', 'provost')}>Provost</button>
               </div>
 
               <div className="auth-card form-row">
@@ -91,6 +100,17 @@ export default function Register() {
                     <select id="department" value={form.department} onChange={e => updateField('department', e.target.value)}>
                       <option value="">Select</option>
                       <option value="CSE">CSE</option>
+                      <option value="EEE">EEE</option>
+                      <option value="ME">ME</option>
+                      <option value="CE">CE</option>
+                      <option value="IPE">IPE</option>
+                      <option value="MME">MME</option>
+                      <option value="ARCH">ARCH</option>
+                      <option value="NAME">NAME</option>
+                      <option value="BME">BME</option>
+                      <option value="NCE">NCE</option>
+                      <option value="URP">URP</option>
+                      <option value="WRE">WRE</option>
                     </select>
                   </div>
 
@@ -102,6 +122,7 @@ export default function Register() {
                       <option value="2">Level 2</option>
                       <option value="3">Level 3</option>
                       <option value="4">Level 4</option>
+                      <option value="5">Level 5</option>
                     </select>
                   </div>
                 </>
@@ -119,9 +140,15 @@ export default function Register() {
                 </button>
               </div>
             </form>
+            <div className="auth-footer">
+              Already have an account? <Link to="/login">Sign In Here.</Link>
+            </div>
           </div>
         </div>
       </div>
+      <footer className="biis-footer">
+        Bangladesh University of Engineering & Technology (BUET), Dhaka-1000, Bangladesh. Tel: (880 2) 9665650 Fax: (880 2) 8613046. © All rights reserved, BUET
+      </footer>
     </div>
   );
 }

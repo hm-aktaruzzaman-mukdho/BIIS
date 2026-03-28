@@ -34,10 +34,10 @@ export default function ChangeSeat() {
 
     try {
       await api.post('/seat-changes', form);
-      setSuccess('request submitted');
+      setSuccess('Seat change request submitted! You can track its status in My Applications');
       setTimeout(() => navigate('/my-applications'), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed');
+      setError(err.response?.data?.error || 'Failed to submit request');
     } finally {
       setLoading(false);
     }
@@ -49,12 +49,12 @@ export default function ChangeSeat() {
         <h1>Change Seat</h1>
       </div>
 
-      <div className="card" style={{ maxWidth: '640px'}}>
+      <div className="card" style={{ maxWidth: '640px', animation: 'slideUp 0.5s ease' }}>
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
-        <div className="alert alert-info">
-          not a current hall resident
+        <div className="alert alert-info" style={{ marginBottom: '20px' }}>
+          ℹ️ You must be a current hall resident to request a seat change. If you don't have a seat yet, please apply for one first.
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -69,14 +69,14 @@ export default function ChangeSeat() {
               <option value="">Select room</option>
               {rooms.map(r => (
                 <option key={r.room_id} value={r.room_id}>
-                 {r.available_seats} seats available
+                  Room {r.room_number} (Floor {r.floor}, {r.hall_name}) — {r.available_seats} seats available
                 </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="change-reason">Changing Reason</label>
+            <label htmlFor="change-reason">Reason for Change</label>
             <textarea
               id="change-reason"
               className="form-control"
