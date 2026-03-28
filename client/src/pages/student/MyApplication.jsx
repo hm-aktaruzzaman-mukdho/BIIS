@@ -37,3 +37,78 @@ function CountdownTimer({ deadline }) {
     </span>
   );
 }
+
+
+
+
+
+export default function MyApplications() {
+    const [applications, setApplications] = useState([]);
+    const [seatChanges, setSeatChanges] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [tab, setTab] = useState('applications');
+    const [payModal, setPayModal] = useState(null);
+    const [cardNumber, setCardNumber] = useState('');
+    const [cardExpiry, setCardExpiry] = useState('');
+    const [cardCvc, setCardCvc] = useState('');
+    const [processing, setProcessing] = useState(false);
+    const [cancelModal, setCancelModal] = useState(null);
+  
+    const loadData = useCallback(async () => {
+      setLoading(true);
+      try {
+        const [appRes, scRes] = await Promise.all([
+          api.get('/applications'),
+          api.get('/seat-changes')
+        ]);
+        setApplications(appRes.data.applications);
+        setSeatChanges(scRes.data.seatChanges);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+  
+    useEffect(() => {
+      loadData();
+    }, [loadData]);
+  
+    async function handlePay(id) {
+      if (!cardNumber || !cardExpiry || !cardCvc) {
+        alert('Please fill all card details');
+        return;
+      }
+      setProcessing(true);
+      try {
+        const res = await api.post(`/applications/${id}/pay`);
+        alert(res.data.message || 'Payment successful! Seat assigned.');
+        setPayModal(null);
+        setCardNumber(''); setCardExpiry(''); setCardCvc('');
+        loadData();
+      } catch (err) {
+        alert(err.response?.data?.error || 'Payment failed');
+      } finally {
+        setProcessing(false);
+      }
+    }
+  
+    async function handleCancel(id) {
+      setProcessing(true);
+      try {
+        const res = await api.post(`/applications/${id}/cancel`);
+        alert(res.data.message || 'Application cancelled');
+        setCancelModal(null);
+        loadData();
+      } catch (err) {
+        alert(err.response?.data?.error || 'Cancellation failed');
+      } finally {
+        setProcessing(false);
+      }
+    }
+  
+    if (loading) {
+      return <div className="loading"><div className="spinner"></div></div>;
+    }
+  
+  }
