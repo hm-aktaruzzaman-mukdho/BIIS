@@ -251,17 +251,163 @@ export default function MyApplications() {
                   </div>
                 )}
 
-              
+                {/* Cancel button for pending or approved-unpaid */}
+                {(app.status === 'pending' || (app.status === 'approved' && app.payment_status === 'pending')) && (
+                  <div style={{ marginTop: '12px' }}>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => setCancelModal(app)}
+                    >
+                      ✖ Cancel Application
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}
         </>
       )}
 
-     
+      {tab === 'changes' && (
+        <>
+          {seatChanges.length === 0 ? (
+            <div className="empty-state">
+              <div className="icon">🔄</div>
+              <h3>No seat change requests</h3>
+              <p>Request a seat change if you're a current resident</p>
+            </div>
+          ) : (
+            seatChanges.map(sc => (
+              <div key={sc.id} className="application-card">
+                <div className="application-header">
+                  <div className="applicant-info">
+                    <h3>Seat Change Request</h3>
+                    <p>
+                      {sc.current_room ? `Current: Room ${sc.current_room}` : ''}
+                      {sc.preferred_room ? ` → Preferred: Room ${sc.preferred_room}` : ''}
+                      {' · '}
+                      {new Date(sc.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </p>
+                  </div>
+                  <span className={`badge badge-${sc.status}`}>
+                    {sc.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="reason-text">{sc.reason}</div>
 
+                {sc.feedback && (
+                  <div className="feedback-section">
+                    <label>Provost Feedback</label>
+                    <p>{sc.feedback}</p>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </>
+      )}
 
-    
+      {/* Payment Modal */}
+      {payModal && (
+        <div className="modal-overlay" onClick={() => setPayModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px' }}>
+            <h2>💳 Seat Payment</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '4px' }}>
+              Complete payment to confirm your seat at <strong>{payModal.hall_name}</strong>
+            </p>
+            {payModal.payment_deadline && (
+              <div style={{ marginBottom: '16px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#777' }}>Deadline: </span>
+                <CountdownTimer deadline={payModal.payment_deadline} />
+              </div>
+            )}
+
+            <div style={{
+              background: '#f9f5ee', border: '1px solid #e0d8c8', padding: '16px',
+              marginBottom: '16px', borderRadius: '4px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <span style={{ fontWeight: 600 }}>Seat Reservation Fee</span>
+                <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#8B0000' }}>৳500</span>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '10px' }}>
+                <label htmlFor="card-number" style={{ fontSize: '0.85rem' }}>Card Number</label>
+                <input
+                  id="card-number"
+                  className="form-control"
+                  placeholder="4242 4242 4242 4242"
+                  value={cardNumber}
+                  onChange={e => setCardNumber(e.target.value)}
+                  maxLength={19}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label htmlFor="card-expiry" style={{ fontSize: '0.85rem' }}>Expiry</label>
+                  <input
+                    id="card-expiry"
+                    className="form-control"
+                    placeholder="MM/YY"
+                    value={cardExpiry}
+                    onChange={e => setCardExpiry(e.target.value)}
+                    maxLength={5}
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label htmlFor="card-cvc" style={{ fontSize: '0.85rem' }}>CVC</label>
+                  <input
+                    id="card-cvc"
+                    className="form-control"
+                    placeholder="123"
+                    value={cardCvc}
+                    onChange={e => setCardCvc(e.target.value)}
+                    maxLength={4}
+                  />
+                </div>
+              </div>
+              <p style={{ fontSize: '0.75rem', color: '#999', margin: '8px 0 0', fontStyle: 'italic' }}>
+                This is a demo payment. No real charges will be made.
+              </p>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={() => setPayModal(null)}>Cancel</button>
+              <button
+                className="btn btn-success"
+                onClick={() => handlePay(payModal.id)}
+                disabled={processing}
+              >
+                {processing ? 'Processing...' : '💰 Pay ৳500'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {cancelModal && (
+        <div className="modal-overlay" onClick={() => setCancelModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>✖ Cancel Application</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+              Are you sure you want to cancel your application for <strong>{cancelModal.hall_name}</strong>?
+              {cancelModal.status === 'approved' && ' Your reserved seat will be released.'}
+              {' '}This action cannot be undone.
+            </p>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={() => setCancelModal(null)}>Keep Application</button>
+              <button
+                className="btn btn-danger"
+                onClick={() => handleCancel(cancelModal.id)}
+                disabled={processing}
+              >
+                {processing ? 'Cancelling...' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
