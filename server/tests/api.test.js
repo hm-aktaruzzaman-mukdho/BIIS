@@ -419,6 +419,25 @@ async function testCancellation() {
     'Cancel — provost cannot cancel student app', `status=${r.status}`);
 }
 
+async function testSeatChanges() {
+  console.log('\n📋 Seat Changes');
+
+  // List — student
+  let r = await req('GET', '/api/seat-changes', null, studentCookie);
+  log(r.status === 200 && Array.isArray(r.data.seatChanges) ? 'PASS' : 'FAIL',
+    'List — student seat changes', `count=${r.data.seatChanges?.length}`);
+
+  // List — provost
+  r = await req('GET', '/api/seat-changes', null, provostCookie);
+  log(r.status === 200 ? 'PASS' : 'FAIL',
+    'List — provost seat changes', `count=${r.data.seatChanges?.length}`);
+
+  // List — unauthenticated
+  r = await req('GET', '/api/seat-changes');
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'List — unauthenticated returns 401', `status=${r.status}`);
+}
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
