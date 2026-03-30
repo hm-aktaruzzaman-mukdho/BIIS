@@ -438,6 +438,20 @@ async function testSeatChanges() {
     'List — unauthenticated returns 401', `status=${r.status}`);
 }
 
+
+async function testLogout() {
+  console.log('\n📋 Logout');
+
+  let r = await req('POST', '/api/auth/logout', null, studentCookie);
+  log(r.status === 200 ? 'PASS' : 'FAIL',
+    'Logout — student', `status=${r.status}`);
+
+  // Verify session is destroyed
+  r = await req('GET', '/api/auth/me', null, studentCookie);
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'After logout — /me returns 401', `status=${r.status}`);
+}
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
