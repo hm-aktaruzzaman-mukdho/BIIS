@@ -383,6 +383,91 @@ async function testApprovalAndPayment() {
     'Submit — resident blocked from applying', `error=${r.data.error?.substring(0, 40)}`);
 }
 
+
+async function testCancellation() {
+  console.log('\n📋 Cancellation');
+
+  // Create a new student for cancel test
+  const cancelEmail = `cancel_${Date.now()}@test.edu`;
+  let r = await req('POST', '/api/auth/register', {
+    name: 'Cancel Test', email: cancelEmail, password: 'test123',
+    role: 'student', student_id: '9999002', department: 'EEE', year: 1
+  });
+  const cancelCookie = r.cookie;
+
+  // Submit application
+  r = await req('POST', '/api/applications', {
+    hall_id: testHallId, reason: 'Testing cancellation flow'
+  }, cancelCookie);
+  const cancelAppId = r.data.application?.id;
+  log(r.status === 201 ? 'PASS' : 'FAIL',
+    'Submit — for cancel test', `id=${cancelAppId}`);
+
+  // Cancel — success (pending)
+  r = await req('POST', `/api/applications/${cancelAppId}/cancel`, {}, cancelCookie);
+  log(r.status === 200 && r.data.application?.status === 'cancelled' ? 'PASS' : 'FAIL',
+    'Cancel — pending application cancelled', `status=${r.data.application?.status}`);
+
+  // Cancel — already cancelled
+  r = await req('POST', `/api/applications/${cancelAppId}/cancel`, {}, cancelCookie);
+  log(r.status === 400 ? 'PASS' : 'FAIL',
+    'Cancel — already cancelled returns 400', `status=${r.status}`);
+
+  // Cancel with wrong user
+  r = await req('POST', `/api/applications/${cancelAppId}/cancel`, {}, provostCookie);
+  log(r.status === 403 ? 'PASS' : 'FAIL',
+    'Cancel — provost cannot cancel student app', `status=${r.status}`);
+}
+
+async function testSeatChanges() {
+  console.log('\n📋 Seat Changes');
+
+  // List — student
+  let r = await req('GET', '/api/seat-changes', null, studentCookie);
+  log(r.status === 200 && Array.isArray(r.data.seatChanges) ? 'PASS' : 'FAIL',
+    'List — student seat changes', `count=${r.data.seatChanges?.length}`);
+
+  // List — provost
+  r = await req('GET', '/api/seat-changes', null, provostCookie);
+  log(r.status === 200 ? 'PASS' : 'FAIL',
+    'List — provost seat changes', `count=${r.data.seatChanges?.length}`);
+
+  // List — unauthenticated
+  r = await req('GET', '/api/seat-changes');
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'List — unauthenticated returns 401', `status=${r.status}`);
+}
+
+
+async function testLogout() {
+  console.log('\n📋 Logout');
+
+  let r = await req('POST', '/api/auth/logout', null, studentCookie);
+  log(r.status === 200 ? 'PASS' : 'FAIL',
+    'Logout — student', `status=${r.status}`);
+
+  // Verify session is destroyed
+  r = await req('GET', '/api/auth/me', null, studentCookie);
+  log(r.status === 401 ? 'PASS' : 'FAIL',
+    'After logout — /me returns 401', `status=${r.status}`);
+}
+
+async function cleanup() {
+  console.log('\n🧹 Cleanup');
+  // Delete test users
+  const pool = require('../src/db');
+  try {
+    await pool.query(`DELETE FROM residents WHERE student_id IN (SELECT id FROM users WHERE email LIKE '%@test.edu')`);
+    await pool.query(`DELETE FROM applications WHERE student_id IN (SELECT id FROM users WHERE email LIKE '%@test.edu')`);
+    await pool.query(`DELETE FROM users WHERE email LIKE '%@test.edu'`);
+    console.log('  🗑️  Test data cleaned up');
+  } catch (e) {
+    console.log('  ⚠️  Cleanup error:', e.message);
+  }
+  await pool.end();
+}
+
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
