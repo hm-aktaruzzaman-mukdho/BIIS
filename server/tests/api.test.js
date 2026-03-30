@@ -383,6 +383,42 @@ async function testApprovalAndPayment() {
     'Submit — resident blocked from applying', `error=${r.data.error?.substring(0, 40)}`);
 }
 
+
+async function testCancellation() {
+  console.log('\n📋 Cancellation');
+
+  // Create a new student for cancel test
+  const cancelEmail = `cancel_${Date.now()}@test.edu`;
+  let r = await req('POST', '/api/auth/register', {
+    name: 'Cancel Test', email: cancelEmail, password: 'test123',
+    role: 'student', student_id: '9999002', department: 'EEE', year: 1
+  });
+  const cancelCookie = r.cookie;
+
+  // Submit application
+  r = await req('POST', '/api/applications', {
+    hall_id: testHallId, reason: 'Testing cancellation flow'
+  }, cancelCookie);
+  const cancelAppId = r.data.application?.id;
+  log(r.status === 201 ? 'PASS' : 'FAIL',
+    'Submit — for cancel test', `id=${cancelAppId}`);
+
+  // Cancel — success (pending)
+  r = await req('POST', `/api/applications/${cancelAppId}/cancel`, {}, cancelCookie);
+  log(r.status === 200 && r.data.application?.status === 'cancelled' ? 'PASS' : 'FAIL',
+    'Cancel — pending application cancelled', `status=${r.data.application?.status}`);
+
+  // Cancel — already cancelled
+  r = await req('POST', `/api/applications/${cancelAppId}/cancel`, {}, cancelCookie);
+  log(r.status === 400 ? 'PASS' : 'FAIL',
+    'Cancel — already cancelled returns 400', `status=${r.status}`);
+
+  // Cancel with wrong user
+  r = await req('POST', `/api/applications/${cancelAppId}/cancel`, {}, provostCookie);
+  log(r.status === 403 ? 'PASS' : 'FAIL',
+    'Cancel — provost cannot cancel student app', `status=${r.status}`);
+}
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
