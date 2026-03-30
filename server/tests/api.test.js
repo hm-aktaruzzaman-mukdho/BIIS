@@ -452,6 +452,22 @@ async function testLogout() {
     'After logout — /me returns 401', `status=${r.status}`);
 }
 
+async function cleanup() {
+  console.log('\n🧹 Cleanup');
+  // Delete test users
+  const pool = require('../src/db');
+  try {
+    await pool.query(`DELETE FROM residents WHERE student_id IN (SELECT id FROM users WHERE email LIKE '%@test.edu')`);
+    await pool.query(`DELETE FROM applications WHERE student_id IN (SELECT id FROM users WHERE email LIKE '%@test.edu')`);
+    await pool.query(`DELETE FROM users WHERE email LIKE '%@test.edu'`);
+    console.log('  🗑️  Test data cleaned up');
+  } catch (e) {
+    console.log('  ⚠️  Cleanup error:', e.message);
+  }
+  await pool.end();
+}
+
+
 async function run() {
   console.log("═══════════════════════════════════════");
   console.log("  BIIS API Test Suite");
