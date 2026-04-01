@@ -64,9 +64,9 @@ export default function Register() {
             <form onSubmit={handleSubmit}>
               <div className="role-selector">
                 <button type="button" className={`role-btn ${form.role === 'student' ? 'active' : ''}`}
-                  onClick={() => updateField('role', 'student')}>Student</button>
+                  onClick={() => updateField('role', 'student')}>🎓Student</button>
                 <button type="button" className={`role-btn ${form.role === 'provost' ? 'active' : ''}`}
-                  onClick={() => updateField('role', 'provost')}>Provost</button>
+                  onClick={() => updateField('role', 'provost')}>🏛️ Provost</button>
               </div>
 
               <div className="auth-card form-row">

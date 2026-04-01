@@ -96,8 +96,8 @@ export default function Login() {
 
             <div style={{ marginTop: '16px', padding: '10px', background: '#f9f6f0', border: '1px solid #ddd', fontSize: '0.78rem', color: '#666' }}>
               <strong style={{ color: '#333' }}>Demo accounts:</strong><br/>
-              Provost: <br/>
-              Student: 
+              Provost: provost1@biis.edu / provost123 <br/>
+              Student: rahim@student.edu / student123
             </div>
           </div>
         </div>

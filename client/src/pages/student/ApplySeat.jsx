@@ -64,7 +64,7 @@ export default function ApplySeat() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      setSuccess('Application submitted successfully! You can track its status in My Applications');
+      setSuccess('Application submitted successfully! You can track its status in My Applications.');
       setTimeout(() => navigate('/my-applications'), 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit application');
@@ -83,7 +83,7 @@ export default function ApplySeat() {
       {checkingResident ? (
         <div className="loading"><div className="spinner"></div></div>
       ) : residentInfo ? (
-        <div className="card"style={{ maxWidth: '640px' }}>
+        <div className="card" style={{ maxWidth: '640px' }}>
           <div style={{
             padding: '24px', textAlign: 'center',
             background: '#FFF3E0', border: '2px solid #FFB74D', borderRadius: '6px'
@@ -100,7 +100,7 @@ export default function ApplySeat() {
           </div>
         </div>
       ) : (
-      <div className="card">
+      <div className="card" style={{ maxWidth: '640px', animation: 'slideUp 0.5s ease' }}>
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
@@ -145,14 +145,14 @@ export default function ApplySeat() {
             <textarea
               id="reason"
               className="form-control"
-              placeholder="Explain why you need hall accommodation."
+              placeholder="Explain why you need hall accommodation.Include details about your financial situation, distance from university, medical conditions, or any other relevant information..."
               value={form.reason}
               onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
               required
               rows={5}
             />
-            <p>
-              Please give a detailed reason
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Please give a detailed reason.
             </p>
           </div>
 
@@ -162,17 +162,17 @@ export default function ApplySeat() {
               id="document"
               type="file"
               className="form-control"
-              accept=".pdf,.jpg"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
               onChange={e => setFile(e.target.files[0])}
               style={{ padding: '10px' }}
             />
-            <p>
-              PDF, images, or Word documents.
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              PDF, images, or Word documents (max 5MB). Attaching documents strengthens your application.
             </p>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit'}
+          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
+            {loading ? 'Submitting...' : '📝 Submit Application'}
           </button>
         </form>
       </div>
