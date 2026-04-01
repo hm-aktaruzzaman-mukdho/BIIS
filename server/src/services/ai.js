@@ -32,3 +32,27 @@ function ruleBasedAnalysis(application) {
 
   return { summary, recommendation, score, factors };
 }
+
+  // Distance factor
+  const distanceWords = ['remote', 'distance', 'far', 'village', 'rural', 'travel', 'hour', 'commute', 'bus'];
+  const distanceHits = distanceWords.filter(k => reason.includes(k));
+  if (distanceHits.length > 0) {
+    rawScore += distanceHits.length * 2;
+    factors.push({
+      factor: 'Distance from University',
+      detail: `Residence appears to be far from campus (mentions: ${distanceHits.join(', ')})`,
+      impact: 'high'
+    });
+  }
+
+  // Financial factor
+  const financeWords = ['financial', 'hardship', 'poverty', 'low-income', 'afford', 'scholarship', 'underprivileged', 'orphan'];
+  const financeHits = financeWords.filter(k => reason.includes(k));
+  if (financeHits.length > 0) {
+    rawScore += financeHits.length * 2.5;
+    factors.push({
+      factor: 'Financial Condition',
+      detail: `Student reports financial constraints (mentions: ${financeHits.join(', ')})`,
+      impact: 'high'
+    });
+  }
