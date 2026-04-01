@@ -179,6 +179,46 @@ export default function Applications() {
                     </div>
                   </div>
                 )}
+
+                {(() => {
+                  let factors = app.ai_reasons;
+                  if (typeof factors === 'string') {
+                    try { factors = JSON.parse(factors); } catch { factors = []; }
+                  }
+
+                  if (Array.isArray(factors) && factors.length > 0) {
+                    return (
+                      <div style={{ marginTop: '8px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                          <thead>
+                            <tr style={{ background: '#f5f0e5' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Factor</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Assessment</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'center', borderBottom: '1px solid #ddd', width: '70px' }}>Impact</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {factors.map((f, i) => (
+                              <tr key={i}>
+                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', fontWeight: 600 }}>
+                                  {f.factor}
+                                </td>
+                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee' }}>
+                                  {f.detail}
+                                  {f.points !== undefined && <span style={{ marginLeft: '6px', fontWeight: 700 }}>({f.points} pts)</span>}
+                                </td>
+                                <td style={{ padding: '6px 10px', textAlign: 'center' }}>
+                                  {(f.impact || 'low').toUpperCase()}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             )}
           </div>
