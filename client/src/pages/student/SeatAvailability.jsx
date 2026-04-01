@@ -95,7 +95,7 @@ export default function SeatAvailability() {
           value={filters.hall_id}
           onChange={e => setFilters(f => ({ ...f, hall_id: e.target.value }))}
         >
-          <option value="">All Halls</option>
+          <option value="">sAll Hall</option>
           {halls.map(h => (
             <option key={h.id} value={h.id}>{h.name}</option>
           ))}
