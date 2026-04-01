@@ -131,10 +131,25 @@ export default function Applications() {
                     {app.ai_recommendation.toUpperCase()}
                   </span>
                 )}
-              </div> 
-            </div> 
-          </div> 
-        )) 
+                {app.payment_status === 'pending' && (
+                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#FFF3E0', color: '#E65100', border: '1px solid #FFCC80' }}>
+                    💳 AWAITING PAYMENT
+                  </span>
+                )}
+                {app.payment_status === 'paid' && (
+                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7' }}>
+                    💰 PAID
+                  </span>
+                )}
+                {app.payment_status === 'expired' && (
+                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#FFEBEE', color: '#C62828', border: '1px solid #EF9A9A' }}>
+                    ⏰ PAYMENT EXPIRED
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))
       )}
 
       {actionModal && (
