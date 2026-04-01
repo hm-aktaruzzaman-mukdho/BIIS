@@ -64,7 +64,7 @@ export default function ApplySeat() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      setSuccess('Application submitted');
+      setSuccess('Application submitted successfully! You can track its status in My Applications');
       setTimeout(() => navigate('/my-applications'), 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit application');
@@ -83,11 +83,19 @@ export default function ApplySeat() {
       {checkingResident ? (
         <div className="loading"><div className="spinner"></div></div>
       ) : residentInfo ? (
-        <div className="card">
-          <div>
-            <h3>Already a Hall Resident</h3>
-            <p>
-              Current residents cannot apply for a new seat.
+        <div className="card"style={{ maxWidth: '640px' }}>
+          <div style={{
+            padding: '24px', textAlign: 'center',
+            background: '#FFF3E0', border: '2px solid #FFB74D', borderRadius: '6px'
+          }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🏠</div>
+            <h3 style={{ color: '#E65100', margin: '0 0 8px' }}>You Are Already a Hall Resident</h3>
+            <p style={{ color: '#555', margin: '0 0 12px' }}>
+              You are currently assigned to <strong>{residentInfo.hall_name}</strong>,
+              Room <strong>{residentInfo.room_number}</strong>, Seat <strong>{residentInfo.seat_number}</strong>.
+            </p>
+            <p style={{ color: '#777', fontSize: '0.88rem' }}>
+              Current residents cannot apply for a new seat. If you need a different room, use the <strong>Change Seat</strong> option instead.
             </p>
           </div>
         </div>
