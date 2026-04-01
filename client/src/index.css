@@ -815,3 +815,42 @@ tr:hover td { background: #f5f0e5; }
   border-color: #5C0000;
   color: white;
 }
+
+
+/* ===== Room Grid ===== */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.room-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 14px 16px;
+}
+
+.room-card:hover {
+  border-color: var(--maroon);
+}
+
+.room-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.room-card-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.room-card-header .floor-tag {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  background: var(--maroon);
+  color: white;
+  font-weight: 600;
+}
