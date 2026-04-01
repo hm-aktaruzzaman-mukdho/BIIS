@@ -20,6 +20,7 @@ const schema = `
     student_id VARCHAR(50),
     department VARCHAR(100),
     year INT,
+    hall_id INT,
     created_at TIMESTAMP DEFAULT NOW()
   );
 
@@ -172,14 +173,19 @@ async function migrate() {
       ['Arif Hasan', 'arif@student.edu', '2022001', 'Physics', 2],
       ['Nusrat Jahan', 'nusrat@student.edu', '2022002', 'Mathematics', 2],
       ['Tanvir Ahmed', 'tanvir@student.edu', '2023001', 'Chemistry', 1],
+      ['Rahim Uddin', 'rahim@student.edu', '2021001', 'Computer Science', 3, hall1Id],
+      ['Fatima Begum', 'fatima@student.edu', '2021002', 'Electrical Engineering', 3, hall1Id],
+      ['Arif Hasan', 'arif@student.edu', '2022001', 'Physics', 2, hall1Id],
+      ['Nusrat Jahan', 'nusrat@student.edu', '2022002', 'Mathematics', 2, hall2Id],
+      ['Tanvir Ahmed', 'tanvir@student.edu', '2023001', 'Chemistry', 1, hall2Id],
     ];
 
     const studentIds = [];
-    for (const [name, email, sid, dept, year] of students) {
+    for (const [name, email, sid, dept, year, hallId] of students) {
       const res = await client.query(
-        `INSERT INTO users (name, email, password_hash, role, student_id, department, year)
-         VALUES ($1, $2, $3, 'student', $4, $5, $6) RETURNING id`,
-        [name, email, studentPass, sid, dept, year]
+        `INSERT INTO users (name, email, password_hash, role, student_id, department, year, hall_id)
+         VALUES ($1, $2, $3, 'student', $4, $5, $6, $7) RETURNING id`,
+        [name, email, studentPass, sid, dept, year, hallId]
       );
       studentIds.push(res.rows[0].id);
     }
