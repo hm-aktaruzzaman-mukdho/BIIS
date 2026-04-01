@@ -227,6 +227,13 @@ export default function Applications() {
                 )}
               </div>
             )}
+
+            {app.feedback && (
+              <div className="feedback-section">
+                <label>Your Feedback</label>
+                <p>{app.feedback}</p>
+              </div>
+            )}
           </div>
         ))
       )}
