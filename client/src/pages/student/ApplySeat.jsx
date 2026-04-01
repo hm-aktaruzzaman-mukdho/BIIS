@@ -1,27 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ApplySeat() {
-  const [halls, setHalls] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [form, setForm] = useState({ hall_id: '', preferred_room_id: '', reason: '' });
+  const [form, setForm] = useState({ preferred_room_id: '', reason: '' });
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [residentInfo, setResidentInfo] = useState(null);
   const [checkingResident, setCheckingResident] = useState(true);
+  const [hallName, setHallName] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     checkResident();
-    loadHalls();
+    loadRooms();
+    loadHallName();
   }, []);
-
-  useEffect(() => {
-    if (form.hall_id) loadRooms(form.hall_id);
-  }, [form.hall_id]);
 
   async function checkResident() {
     try {
@@ -33,16 +32,18 @@ export default function ApplySeat() {
     finally { setCheckingResident(false); }
   }
 
-  async function loadHalls() {
+  async function loadHallName() {
     try {
       const res = await api.get('/seats/halls');
-      setHalls(res.data.halls);
+      const myHall = res.data.halls.find(h => h.id === user?.hall_id);
+      if (myHall) setHallName(myHall.name);
     } catch (err) { console.error(err); }
   }
 
-  async function loadRooms(hallId) {
+  async function loadRooms() {
     try {
-      const res = await api.get('/seats', { params: { hall_id: hallId } });
+      // Backend auto-filters by student's hall
+      const res = await api.get('/seats');
       setRooms(res.data.rooms.filter(r => parseInt(r.available_seats) > 0));
     } catch (err) { console.error(err); }
   }
@@ -55,7 +56,6 @@ export default function ApplySeat() {
 
     try {
       const formData = new FormData();
-      formData.append('hall_id', form.hall_id);
       formData.append('reason', form.reason);
       if (form.preferred_room_id) formData.append('preferred_room_id', form.preferred_room_id);
       if (file) formData.append('document', file);
@@ -104,24 +104,17 @@ export default function ApplySeat() {
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="hall">Select Hall *</label>
-            <select
-              id="hall"
-              className="form-control"
-              value={form.hall_id}
-              onChange={e => setForm(f => ({ ...f, hall_id: e.target.value, preferred_room_id: '' }))}
-              required
-            >
-              <option value="">Choose a hall</option>
-              {halls.map(h => (
-                <option key={h.id} value={h.id}>{h.name}</option>
-              ))}
-            </select>
+        {hallName && (
+          <div style={{
+            padding: '10px 14px', marginBottom: '16px',
+            background: '#f0ebe0', border: '1px solid #d5cfc0', fontSize: '0.9rem'
+          }}>
+            🏛️ Applying for: <strong>{hallName}</strong>
           </div>
+        )}
 
-          {form.hall_id && rooms.length > 0 && (
+        <form onSubmit={handleSubmit}>
+          {rooms.length > 0 && (
             <div className="form-group">
               <label htmlFor="room">Preferred Room (Optional)</label>
               <select
@@ -145,14 +138,14 @@ export default function ApplySeat() {
             <textarea
               id="reason"
               className="form-control"
-              placeholder="Explain why you need hall accommodation.Include details about your financial situation, distance from university, medical conditions, or any other relevant information..."
+              placeholder="Explain why you need hall accommodation. Include details about your financial situation, distance from university, medical conditions, or any other relevant information..."
               value={form.reason}
               onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
               required
               rows={5}
             />
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-              Please give a detailed reason.
+              A detailed reason with supporting keywords will improve your AI recommendation score
             </p>
           </div>
 
