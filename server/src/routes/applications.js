@@ -38,10 +38,15 @@ router.post('/', requireAuth, upload.single('document'), async (req, res) => {
       return res.status(403).json({ error: 'Only students can submit applications' });
     }
 
-    const { hall_id, preferred_room_id, reason } = req.body;
+    const { preferred_room_id, reason } = req.body;
+    const hall_id = req.session.user.hall_id;
 
-    if (!hall_id || !reason) {
-      return res.status(400).json({ error: 'Hall and reason are required' });
+    if (!hall_id) {
+      return res.status(400).json({ error: 'You are not assigned to any hall. Please contact administration.' });
+    }
+
+    if (!reason) {
+      return res.status(400).json({ error: 'Reason is required' });
     }
 
     const residentCheck = await pool.query(
