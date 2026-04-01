@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../api';
 
 export default function Applications() {
@@ -146,6 +146,9 @@ export default function Applications() {
                     ⏰ PAYMENT EXPIRED
                   </span>
                 )}
+                <span className={`badge badge-${app.status}`}>
+                  {app.status.toUpperCase()}
+                </span>
               </div>
             </div>
             <div className="reason-text">{app.reason}</div>
@@ -156,6 +159,7 @@ export default function Applications() {
               </p>
             )}
 
+            {/* AI Score & Factor Breakdown */}
             {(app.ai_score || app.ai_summary) && (
               <div className="ai-section" style={{ marginTop: '12px' }}>
                 <div className="ai-label">🤖 AI Priority Analysis</div>
@@ -168,11 +172,10 @@ export default function Applications() {
                       </span>
                     </div>
 
+                    {/* Score bar */}
                     <div style={{ height: '8px', background: '#eee', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
                       <div style={{
-                        height: '100%',
-                        width: `${app.ai_score * 10}%`,
-                        borderRadius: '4px',
+                        height: '100%', width: `${app.ai_score * 10}%`, borderRadius: '4px',
                         background: app.ai_score >= 7 ? '#4CAF50' : app.ai_score >= 4 ? '#FF9800' : '#F44336',
                         transition: 'width 0.3s'
                       }}></div>
@@ -192,23 +195,30 @@ export default function Applications() {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                           <thead>
                             <tr style={{ background: '#f5f0e5' }}>
-                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Factor</th>
-                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Assessment</th>
-                              <th style={{ padding: '6px 10px', textAlign: 'center', borderBottom: '1px solid #ddd', width: '70px' }}>Impact</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd', fontWeight: 700 }}>Factor</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd', fontWeight: 700 }}>Assessment</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'center', borderBottom: '1px solid #ddd', fontWeight: 700, width: '70px' }}>Impact</th>
                             </tr>
                           </thead>
                           <tbody>
                             {factors.map((f, i) => (
                               <tr key={i}>
-                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', fontWeight: 600 }}>
+                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                   {f.factor}
                                 </td>
-                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', color: '#555' }}>
                                   {f.detail}
-                                  {f.points !== undefined && <span style={{ marginLeft: '6px', fontWeight: 700 }}>({f.points} pts)</span>}
+                                  {f.points !== undefined && <span style={{ marginLeft: '6px', fontWeight: 700, color: '#8B0000' }}>({f.points} pts)</span>}
                                 </td>
-                                <td style={{ padding: '6px 10px', textAlign: 'center' }}>
-                                  {(f.impact || 'low').toUpperCase()}
+                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', textAlign: 'center' }}>
+                                  <span style={{
+                                    padding: '1px 8px', fontSize: '0.72rem', fontWeight: 700,
+                                    background: f.impact === 'high' ? '#FFEBEE' : f.impact === 'medium' ? '#FFF8E1' : '#F5F5F5',
+                                    color: f.impact === 'high' ? '#C62828' : f.impact === 'medium' ? '#E65100' : '#777',
+                                    border: `1px solid ${f.impact === 'high' ? '#EF9A9A' : f.impact === 'medium' ? '#FFE082' : '#ddd'}`
+                                  }}>
+                                    {(f.impact || 'low').toUpperCase()}
+                                  </span>
                                 </td>
                               </tr>
                             ))}
@@ -221,9 +231,7 @@ export default function Applications() {
                 })()}
 
                 {app.ai_summary && (
-                  <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>
-                    {app.ai_summary}
-                  </p>
+                  <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>{app.ai_summary}</p>
                 )}
               </div>
             )}
@@ -239,19 +247,13 @@ export default function Applications() {
               <div className="btn-group" style={{ marginTop: '16px' }}>
                 <button
                   className="btn btn-success btn-sm"
-                  onClick={() => {
-                    setActionModal({ id: app.id, action: 'approved', name: app.student_name });
-                    setFeedback('');
-                  }}
+                  onClick={() => { setActionModal({ id: app.id, action: 'approved', name: app.student_name }); setFeedback(''); }}
                 >
                   ✅ Approve
                 </button>
                 <button
                   className="btn btn-danger btn-sm"
-                  onClick={() => {
-                    setActionModal({ id: app.id, action: 'denied', name: app.student_name });
-                    setFeedback('');
-                  }}
+                  onClick={() => { setActionModal({ id: app.id, action: 'denied', name: app.student_name }); setFeedback(''); }}
                 >
                   ❌ Deny
                 </button>
@@ -261,6 +263,7 @@ export default function Applications() {
         ))
       )}
 
+      {/* Action Modal */}
       {actionModal && (
         <div className="modal-overlay" onClick={() => setActionModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
