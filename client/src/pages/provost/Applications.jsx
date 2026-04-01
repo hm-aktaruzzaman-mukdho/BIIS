@@ -148,6 +148,13 @@ export default function Applications() {
                 )}
               </div>
             </div>
+            <div className="reason-text">{app.reason}</div>
+
+            {app.document_url && (
+              <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>
+                📎 <a href={app.document_url} target="_blank" rel="noopener noreferrer">View document</a>
+              </p>
+            )}
           </div>
         ))
       )}
