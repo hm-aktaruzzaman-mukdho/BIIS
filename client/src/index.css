@@ -854,3 +854,33 @@ tr:hover td { background: #f5f0e5; }
   color: white;
   font-weight: 600;
 }
+
+
+.seat-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.seat-dot {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.seat-dot.available {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: #A5D6A7;
+}
+
+.seat-dot.occupied {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: #EF9A9A;
+}
