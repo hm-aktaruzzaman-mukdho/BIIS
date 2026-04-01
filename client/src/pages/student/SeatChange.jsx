@@ -34,7 +34,7 @@ export default function ChangeSeat() {
 
     try {
       await api.post('/seat-changes', form);
-      setSuccess('Seat change request submitted! You can track its status in My Applications');
+      setSuccess('Seat change request submitted! You can track its status in My Applications.');
       setTimeout(() => navigate('/my-applications'), 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit request');
