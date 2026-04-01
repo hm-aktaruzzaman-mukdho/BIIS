@@ -155,6 +155,12 @@ export default function Applications() {
                 📎 <a href={app.document_url} target="_blank" rel="noopener noreferrer">View document</a>
               </p>
             )}
+
+            {(app.ai_score || app.ai_summary) && (
+              <div className="ai-section" style={{ marginTop: '12px' }}>
+                <div className="ai-label">🤖 AI Priority Analysis</div>
+              </div>
+            )}
           </div>
         ))
       )}
