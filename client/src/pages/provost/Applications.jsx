@@ -136,6 +136,48 @@ export default function Applications() {
           </div> 
         )) 
       )}
+
+      {/* Action Modal */}
+      {actionModal && (
+        <div className="modal-overlay" onClick={() => setActionModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>
+              {actionModal.action === 'approved' ? '✅ Approve' : '❌ Deny'} Application
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+              {actionModal.action === 'approved'
+                ? `Approve ${actionModal.name}'s seat application? A seat will be automatically assigned.`
+                : `Deny ${actionModal.name}'s seat application?`
+              }
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="feedback-input">Feedback to Student</label>
+              <textarea
+                id="feedback-input"
+                className="form-control"
+                placeholder="Provide feedback to the student (optional but recommended)..."
+                value={feedback}
+                onChange={e => setFeedback(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={() => setActionModal(null)}>
+                Cancel
+              </button>
+              <button
+                className={`btn ${actionModal.action === 'approved' ? 'btn-success' : 'btn-danger'}`}
+                onClick={() => handleAction(actionModal.id, actionModal.action)}
+                disabled={processing}
+              >
+                {processing ? 'Processing...' : (actionModal.action === 'approved' ? 'Approve' : 'Deny')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
