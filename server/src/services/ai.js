@@ -128,3 +128,23 @@ function ruleBasedAnalysis(application) {
     return ruleBasedAnalysis(application);
   }
 }
+    const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      if (
+        typeof parsed.score === 'number' &&
+        typeof parsed.summary === 'string' &&
+        ['strong', 'moderate', 'weak'].includes(parsed.recommendation) &&
+        Array.isArray(parsed.factors)
+      ) {
+        parsed.score = Math.max(1, Math.min(10, Math.round(parsed.score)));
+
+        console.log(`🤖 Gemini scored application: ${parsed.score}/10 (${parsed.recommendation})`);
+        return parsed;
+      }
+    }
+
+    throw new Error('Invalid AI response structure');
