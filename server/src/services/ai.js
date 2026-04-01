@@ -56,3 +56,27 @@ function ruleBasedAnalysis(application) {
       impact: 'high'
     });
   }
+
+    // Medical factor
+  const medicalWords = ['medical', 'health', 'disability', 'chronic', 'surgery', 'treatment', 'emergency'];
+  const medicalHits = medicalWords.filter(k => reason.includes(k));
+  if (medicalHits.length > 0) {
+    rawScore += medicalHits.length * 2.5;
+    factors.push({
+      factor: 'Medical/Health',
+      detail: `Health-related concerns mentioned (mentions: ${medicalHits.join(', ')})`,
+      impact: 'high'
+    });
+  }
+
+  // Academic factor
+  const academicWords = ['research', 'lab', 'library', 'academic', 'study', 'classes', 'early'];
+  const academicHits = academicWords.filter(k => reason.includes(k));
+  if (academicHits.length > 0) {
+    rawScore += academicHits.length * 1.5;
+    factors.push({
+      factor: 'Academic Needs',
+      detail: `Educational requirements cited (mentions: ${academicHits.join(', ')})`,
+      impact: 'medium'
+    });
+  }
