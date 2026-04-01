@@ -103,7 +103,113 @@ export default function Applications() {
           <p>There are no applications matching your filter</p>
         </div>
       ) : (
-        applications.map()
+        applications.map(app => (
+          <div key={app.id} className="application-card">
+            <div className="application-header">
+              <div className="applicant-info">
+                <h3>{app.student_name}</h3>
+                <p>
+                  {app.student_roll} · {app.department} · Year {app.year}
+                  {' · '}
+                  {app.room_number ? `Room ${app.room_number} (Floor ${app.floor})` : 'No room preference'}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {app.payment_status === 'pending' && (
+                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#FFF3E0', color: '#E65100', border: '1px solid #FFCC80' }}>
+                    💳 AWAITING PAYMENT
+                  </span>
+                )}
+                {app.payment_status === 'paid' && (
+                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7' }}>
+                    💰 PAID
+                  </span>
+                )}
+                {app.payment_status === 'expired' && (
+                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#FFEBEE', color: '#C62828', border: '1px solid #EF9A9A' }}>
+                    ⏰ PAYMENT EXPIRED
+                  </span>
+                )}
+                <span className={`badge badge-${app.status}`}>
+                  {app.status.toUpperCase()}
+                </span>
+              </div>
+            </div>
+
+            <div className="reason-text">{app.reason}</div>
+
+            {app.document_url && (
+              <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>
+                📎 <a href={app.document_url} target="_blank" rel="noopener noreferrer">View document</a>
+              </p>
+            )}
+
+            {app.feedback && (
+              <div className="feedback-section">
+                <label>Your Feedback</label>
+                <p>{app.feedback}</p>
+              </div>
+            )}
+
+            {app.status === 'pending' && (
+              <div className="btn-group" style={{ marginTop: '16px' }}>
+                <button
+                  className="btn btn-success btn-sm"
+                  onClick={() => { setActionModal({ id: app.id, action: 'approved', name: app.student_name }); setFeedback(''); }}
+                >
+                  ✅ Approve
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => { setActionModal({ id: app.id, action: 'denied', name: app.student_name }); setFeedback(''); }}
+                >
+                  ❌ Deny
+                </button>
+              </div>
+            )}
+          </div>
+        ))
+      )}
+
+      {actionModal && (
+        <div className="modal-overlay" onClick={() => setActionModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>
+              {actionModal.action === 'approved' ? '✅ Approve' : '❌ Deny'} Application
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+              {actionModal.action === 'approved'
+                ? `Approve ${actionModal.name}'s seat application? A seat will be automatically assigned.`
+                : `Deny ${actionModal.name}'s seat application?`
+              }
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="feedback-input">Feedback to Student</label>
+              <textarea
+                id="feedback-input"
+                className="form-control"
+                placeholder="Provide feedback to the student (optional but recommended)..."
+                value={feedback}
+                onChange={e => setFeedback(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={() => setActionModal(null)}>
+                Cancel
+              </button>
+              <button
+                className={`btn ${actionModal.action === 'approved' ? 'btn-success' : 'btn-danger'}`}
+                onClick={() => handleAction(actionModal.id, actionModal.action)}
+                disabled={processing}
+              >
+                {processing ? 'Processing...' : (actionModal.action === 'approved' ? 'Approve' : 'Deny')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
