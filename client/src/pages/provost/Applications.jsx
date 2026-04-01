@@ -137,7 +137,6 @@ export default function Applications() {
         )) 
       )}
 
-      {/* Action Modal */}
       {actionModal && (
         <div className="modal-overlay" onClick={() => setActionModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
