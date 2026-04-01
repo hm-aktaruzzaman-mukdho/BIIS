@@ -1,26 +1,29 @@
 import { useState, useEffect } from 'react';
 import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SeatAvailability() {
   const [rooms, setRooms] = useState([]);
-  const [halls, setHalls] = useState([]);
   const [stats, setStats] = useState([]);
-  const [filters, setFilters] = useState({ hall_id: '', floor: '', room_number: '' });
+  const [filters, setFilters] = useState({ floor: '', room_number: '' });
   const [loading, setLoading] = useState(true);
+  const [hallName, setHallName] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
-    loadHalls();
     loadStats();
+    loadHallName();
   }, []);
 
   useEffect(() => {
     loadRooms();
   }, [filters]);
 
-  async function loadHalls() {
+  async function loadHallName() {
     try {
       const res = await api.get('/seats/halls');
-      setHalls(res.data.halls);
+      const myHall = res.data.halls.find(h => h.id === user?.hall_id);
+      if (myHall) setHallName(myHall.name);
     } catch (err) { console.error(err); }
   }
 
@@ -35,7 +38,7 @@ export default function SeatAvailability() {
     setLoading(true);
     try {
       const params = {};
-      if (filters.hall_id) params.hall_id = filters.hall_id;
+      // No hall_id param needed — backend auto-filters by student's hall
       if (filters.floor) params.floor = filters.floor;
       if (filters.room_number) params.room_number = filters.room_number;
       const res = await api.get('/seats', { params });
@@ -54,8 +57,8 @@ export default function SeatAvailability() {
   return (
     <div>
       <div className="page-header">
-        <h1>Seat Availability</h1>
-        <p>Browse available seats and filter by hall, floor, or room number</p>
+        <h1>Seat Availability{hallName ? ` — ${hallName}` : ''}</h1>
+        <p>Browse available seats and filter by floor or room number</p>
       </div>
 
       <div className="stats-grid">
@@ -80,27 +83,9 @@ export default function SeatAvailability() {
             <p>Occupied</p>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon blue">🏛️</div>
-          <div className="stat-info">
-            <h3>{halls.length}</h3>
-            <p>Halls</p>
-          </div>
-        </div>
       </div>
 
       <div className="filters-bar">
-        <select
-          className="form-control"
-          value={filters.hall_id}
-          onChange={e => setFilters(f => ({ ...f, hall_id: e.target.value }))}
-        >
-          <option value="">sAll Hall</option>
-          {halls.map(h => (
-            <option key={h.id} value={h.id}>{h.name}</option>
-          ))}
-        </select>
-
         <select
           className="form-control"
           value={filters.floor}
@@ -142,7 +127,6 @@ export default function SeatAvailability() {
                   <h3>Room {room.room_number}</h3>
                   <span className="floor-tag">Floor {room.floor}</span>
                 </div>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{room.hall_name}</p>
 
                 <div className="seat-dots">
                   {Array.from({ length: total }, (_, i) => (
