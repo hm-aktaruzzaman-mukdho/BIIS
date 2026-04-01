@@ -111,3 +111,20 @@ function ruleBasedAnalysis(application) {
 
   const summary = `Priority Score: ${score}/10. ` +
     factors.map(f => `${f.factor}: ${f.detail}`).join('. ') + '.';
+    async function geminiAnalysis(application) {
+  try {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    const prompt = `You are an AI assistant helping a university hall provost evaluate seat allocation applications at BUET...`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    // TODO: parsing
+
+  } catch (err) {
+    console.error('Gemini API error, falling back to rule-based:', err.message);
+    return ruleBasedAnalysis(application);
+  }
+}
