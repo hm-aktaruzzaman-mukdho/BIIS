@@ -234,6 +234,29 @@ export default function Applications() {
                 <p>{app.feedback}</p>
               </div>
             )}
+
+            {app.status === 'pending' && (
+              <div className="btn-group" style={{ marginTop: '16px' }}>
+                <button
+                  className="btn btn-success btn-sm"
+                  onClick={() => {
+                    setActionModal({ id: app.id, action: 'approved', name: app.student_name });
+                    setFeedback('');
+                  }}
+                >
+                  ✅ Approve
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => {
+                    setActionModal({ id: app.id, action: 'denied', name: app.student_name });
+                    setFeedback('');
+                  }}
+                >
+                  ❌ Deny
+                </button>
+              </div>
+            )}
           </div>
         ))
       )}
