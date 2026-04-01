@@ -1,0 +1,19 @@
+# render.yaml — Render Blueprint
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: biis
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually (optional)
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000

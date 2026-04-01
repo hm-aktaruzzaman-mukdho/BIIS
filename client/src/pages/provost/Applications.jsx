@@ -115,62 +115,29 @@ export default function Applications() {
                 </p>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {app.payment_status === 'pending' && (
-                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#FFF3E0', color: '#E65100', border: '1px solid #FFCC80' }}>
-                    💳 AWAITING PAYMENT
+                {app.ai_score && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    padding: '3px 10px', fontWeight: 700, fontSize: '0.85rem',
+                    background: app.ai_score >= 7 ? '#E8F5E9' : app.ai_score >= 4 ? '#FFF3E0' : '#FFEBEE',
+                    color: app.ai_score >= 7 ? '#2E7D32' : app.ai_score >= 4 ? '#E65100' : '#C62828',
+                    border: `1px solid ${app.ai_score >= 7 ? '#A5D6A7' : app.ai_score >= 4 ? '#FFCC80' : '#EF9A9A'}`
+                  }}>
+                    ⭐ {app.ai_score}/10
                   </span>
                 )}
-                {app.payment_status === 'paid' && (
-                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7' }}>
-                    💰 PAID
+                {app.ai_recommendation && (
+                  <span className={`badge badge-${app.ai_recommendation}`}>
+                    {app.ai_recommendation.toUpperCase()}
                   </span>
                 )}
-                {app.payment_status === 'expired' && (
-                  <span style={{ padding: '2px 8px', fontWeight: 700, fontSize: '0.75rem', background: '#FFEBEE', color: '#C62828', border: '1px solid #EF9A9A' }}>
-                    ⏰ PAYMENT EXPIRED
-                  </span>
-                )}
-                <span className={`badge badge-${app.status}`}>
-                  {app.status.toUpperCase()}
-                </span>
-              </div>
-            </div>
-
-            <div className="reason-text">{app.reason}</div>
-
-            {app.document_url && (
-              <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>
-                📎 <a href={app.document_url} target="_blank" rel="noopener noreferrer">View document</a>
-              </p>
-            )}
-
-            {app.feedback && (
-              <div className="feedback-section">
-                <label>Your Feedback</label>
-                <p>{app.feedback}</p>
-              </div>
-            )}
-
-            {app.status === 'pending' && (
-              <div className="btn-group" style={{ marginTop: '16px' }}>
-                <button
-                  className="btn btn-success btn-sm"
-                  onClick={() => { setActionModal({ id: app.id, action: 'approved', name: app.student_name }); setFeedback(''); }}
-                >
-                  ✅ Approve
-                </button>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => { setActionModal({ id: app.id, action: 'denied', name: app.student_name }); setFeedback(''); }}
-                >
-                  ❌ Deny
-                </button>
-              </div>
-            )}
-          </div>
-        ))
+              </div> 
+            </div> 
+          </div> 
+        )) 
       )}
 
+      {/* Action Modal */}
       {actionModal && (
         <div className="modal-overlay" onClick={() => setActionModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
