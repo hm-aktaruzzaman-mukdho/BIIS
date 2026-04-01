@@ -884,3 +884,19 @@ tr:hover td { background: #f5f0e5; }
   color: var(--danger);
   border-color: #EF9A9A;
 }
+
+
+
+.room-stats {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-medium);
+}
+
+.room-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
