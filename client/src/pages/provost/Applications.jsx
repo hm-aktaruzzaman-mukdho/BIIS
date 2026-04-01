@@ -159,6 +159,26 @@ export default function Applications() {
             {(app.ai_score || app.ai_summary) && (
               <div className="ai-section" style={{ marginTop: '12px' }}>
                 <div className="ai-label">🤖 AI Priority Analysis</div>
+
+                {app.ai_score && (
+                  <div style={{ margin: '8px 0 12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: 700, fontSize: '1.1rem', color: app.ai_score >= 7 ? '#2E7D32' : app.ai_score >= 4 ? '#E65100' : '#C62828' }}>
+                        Priority: {app.ai_score}/10
+                      </span>
+                    </div>
+
+                    <div style={{ height: '8px', background: '#eee', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${app.ai_score * 10}%`,
+                        borderRadius: '4px',
+                        background: app.ai_score >= 7 ? '#4CAF50' : app.ai_score >= 4 ? '#FF9800' : '#F44336',
+                        transition: 'width 0.3s'
+                      }}></div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
