@@ -219,6 +219,12 @@ export default function Applications() {
                   }
                   return null;
                 })()}
+
+                {app.ai_summary && (
+                  <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>
+                    {app.ai_summary}
+                  </p>
+                )}
               </div>
             )}
           </div>
