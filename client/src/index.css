@@ -362,3 +362,164 @@ a:hover {
   font-size: 0.8rem;
   margin-top: 2px;
 }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 18px;
+  border: 1px solid #999;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  background: linear-gradient(to bottom, #f8f8f8, #e0e0e0);
+  color: var(--text-dark);
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(to bottom, #9B1B1B, #7B0000);
+  color: white;
+  border-color: #5C0000;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #7B0000, #5C0000);
+}
+
+.btn-success {
+  background: linear-gradient(to bottom, #43A047, #2E7D32);
+  color: white;
+  border-color: #1B5E20;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #2E7D32, #1B5E20);
+}
+
+.btn-danger {
+  background: linear-gradient(to bottom, #E53935, #C62828);
+  color: white;
+  border-color: #B71C1C;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #C62828, #B71C1C);
+}
+
+.btn-outline {
+  background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+  color: var(--text-dark);
+  border: 1px solid #bbb;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #e8e8e8, #d8d8d8);
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ===== Forms ===== */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 7px 10px;
+  background: white;
+  border: 1px solid #aaa;
+  color: var(--text-dark);
+  font-family: var(--font);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: var(--maroon);
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+}
+
+textarea.form-control {
+  min-height: 80px;
+  resize: vertical;
+}
+
+select.form-control {
+  appearance: auto;
+}
+
+/* ===== Table ===== */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  background: white;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+thead {
+  background: #f0ebe0;
+}
+
+th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: var(--text-dark);
+  font-size: 0.82rem;
+  border-bottom: 2px solid var(--border-color);
+  border-right: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+th:last-child { border-right: none; }
+
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #f0f0f0;
+  color: var(--text-dark);
+}
+
+td:last-child { border-right: none; }
+
+tr:nth-child(even) { background: #faf8f4; }
+tr:hover td { background: #f5f0e5; }
