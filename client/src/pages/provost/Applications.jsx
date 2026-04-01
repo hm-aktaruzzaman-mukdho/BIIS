@@ -103,7 +103,38 @@ export default function Applications() {
           <p>There are no applications matching your filter</p>
         </div>
       ) : (
-        applications.map()
+        applications.map(app => (
+          <div key={app.id} className="application-card">
+            <div className="application-header">
+              <div className="applicant-info">
+                <h3>{app.student_name}</h3>
+                <p>
+                  {app.student_roll} · {app.department} · Year {app.year}
+                  {' · '}
+                  {app.room_number ? `Room ${app.room_number} (Floor ${app.floor})` : 'No room preference'}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {app.ai_score && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    padding: '3px 10px', fontWeight: 700, fontSize: '0.85rem',
+                    background: app.ai_score >= 7 ? '#E8F5E9' : app.ai_score >= 4 ? '#FFF3E0' : '#FFEBEE',
+                    color: app.ai_score >= 7 ? '#2E7D32' : app.ai_score >= 4 ? '#E65100' : '#C62828',
+                    border: `1px solid ${app.ai_score >= 7 ? '#A5D6A7' : app.ai_score >= 4 ? '#FFCC80' : '#EF9A9A'}`
+                  }}>
+                    ⭐ {app.ai_score}/10
+                  </span>
+                )}
+                {app.ai_recommendation && (
+                  <span className={`badge badge-${app.ai_recommendation}`}>
+                    {app.ai_recommendation.toUpperCase()}
+                  </span>
+                )}
+              </div> 
+            </div> 
+          </div> 
+        )) 
       )}
     </div>
   );
