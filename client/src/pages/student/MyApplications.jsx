@@ -201,48 +201,7 @@ export default function MyApplications() {
                   </div>
                 )}
 
-                {/* {(app.ai_score || app.ai_recommendation) && (
-                  <div className="ai-section">
-                    <div className="ai-label">🤖 AI Priority Analysis</div>
-                    {app.ai_score && (
-                      <div style={{ margin: '6px 0 8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                          <span style={{ fontWeight: 700, fontSize: '1rem', color: app.ai_score >= 7 ? '#2E7D32' : app.ai_score >= 4 ? '#E65100' : '#C62828' }}>
-                            Priority Score: {app.ai_score}/10
-                          </span>
-                          <span className={`badge badge-${app.ai_recommendation}`}>
-                            {app.ai_recommendation?.toUpperCase()}
-                          </span>
-                        </div>
-                        <div style={{ height: '6px', background: '#eee', width: '100%', borderRadius: '3px', overflow: 'hidden' }}>
-                          <div style={{
-                            height: '100%', width: `${app.ai_score * 10}%`, borderRadius: '3px',
-                            background: app.ai_score >= 7 ? '#4CAF50' : app.ai_score >= 4 ? '#FF9800' : '#F44336'
-                          }}></div>
-                        </div>
-                      </div>
-                    )}
-                    {(() => {
-                      let factors = app.ai_reasons;
-                      if (typeof factors === 'string') {
-                        try { factors = JSON.parse(factors); } catch { factors = []; }
-                      }
-                      if (Array.isArray(factors) && factors.length > 0) {
-                        return (
-                          <div style={{ fontSize: '0.82rem', marginTop: '6px' }}>
-                            {factors.map((f, i) => (
-                              <div key={i} style={{ display: 'flex', gap: '6px', padding: '3px 0', borderBottom: '1px solid #f0ebe0' }}>
-                                <strong style={{ minWidth: '160px' }}>{f.factor}:</strong>
-                                <span style={{ color: '#555' }}>{f.detail} {f.points !== undefined && <em style={{ color: '#8B0000' }}>({f.points} pts)</em>}</span>
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      }
-                      return app.ai_summary ? <p style={{ fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>{app.ai_summary}</p> : null;
-                    })()}
-                  </div>
-                )} */}
+                
 
                 {app.feedback && (
                   <div className="feedback-section">
