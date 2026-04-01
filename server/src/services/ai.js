@@ -148,3 +148,12 @@ function ruleBasedAnalysis(application) {
     }
 
     throw new Error('Invalid AI response structure');
+
+    async function analyzeApplication(application) {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
+    return await geminiAnalysis(application);
+  }
+  return ruleBasedAnalysis(application);
+}
+
+module.exports = { analyzeApplication };
