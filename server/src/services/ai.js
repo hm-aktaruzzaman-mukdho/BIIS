@@ -80,3 +80,34 @@ function ruleBasedAnalysis(application) {
       impact: 'medium'
     });
   }
+
+    // Reason detail
+  if (reason.length > 300) { rawScore += 2; }
+  else if (reason.length > 150) { rawScore += 1; }
+
+  // Documents
+  if (application.document_url) {
+    rawScore += 2;
+    factors.push({
+      factor: 'Supporting Documents',
+      detail: 'Student has attached supporting documents',
+      impact: 'medium'
+    });
+  } else {
+    factors.push({
+      factor: 'Supporting Documents',
+      detail: 'No supporting documents provided',
+      impact: 'low'
+    });
+  }
+
+  if (factors.length === 1) {
+    factors.unshift({
+      factor: 'General Request',
+      detail: 'Application provides general reasons without specific urgency indicators',
+      impact: 'low'
+    });
+  }
+
+  const summary = `Priority Score: ${score}/10. ` +
+    factors.map(f => `${f.factor}: ${f.detail}`).join('. ') + '.';
