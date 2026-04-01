@@ -786,3 +786,32 @@ tr:hover td { background: #f5f0e5; }
   font-weight: 600;
   color: var(--text-dark);
 }
+
+.role-selector {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  justify-content: center;
+}
+
+.role-btn {
+  padding: 6px 16px;
+  background: linear-gradient(to bottom, #f8f8f8, #e0e0e0);
+  border: 1px solid #999;
+  color: var(--text-dark);
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+}
+
+.role-btn:hover {
+  background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+}
+
+.role-btn.active {
+  background: linear-gradient(to bottom, #9B1B1B, #7B0000);
+  border-color: #5C0000;
+  color: white;
+}
