@@ -8,7 +8,14 @@ const router = express.Router();
 // Query params: hall_id, floor, room_number
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { hall_id, floor, room_number } = req.query;
+    const user = req.session.user;
+    const { floor, room_number } = req.query;
+    let { hall_id } = req.query;
+
+    // Students always see only their own hall
+    if (user.role === 'student') {
+      hall_id = user.hall_id;
+    }
 
     let query = `
       SELECT 
@@ -57,10 +64,11 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/seats/stats — availability summary
+// GET /api/seats/stats — availability summary (student sees only their hall)
 router.get('/stats', requireAuth, async (req, res) => {
   try {
-    const result = await pool.query(`
+    const user = req.session.user;
+    let query = `
       SELECT 
         h.id AS hall_id,
         h.name AS hall_name,
@@ -71,9 +79,15 @@ router.get('/stats', requireAuth, async (req, res) => {
       FROM halls h
       JOIN rooms r ON r.hall_id = h.id
       JOIN seats s ON s.room_id = r.id
-      GROUP BY h.id, h.name
-      ORDER BY h.name
-    `);
+    `;
+    const params = [];
+    if (user.role === 'student' && user.hall_id) {
+      params.push(user.hall_id);
+      query += ` WHERE h.id = $1`;
+    }
+    query += ` GROUP BY h.id, h.name ORDER BY h.name`;
+
+    const result = await pool.query(query, params);
     res.json({ stats: result.rows });
   } catch (err) {
     console.error('Stats error:', err);
@@ -81,8 +95,8 @@ router.get('/stats', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/seats/halls — list all halls
-router.get('/halls', requireAuth, async (req, res) => {
+// GET /api/seats/halls — list all halls (public — needed for registration)
+router.get('/halls', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT h.id, h.name, u.name AS provost_name
