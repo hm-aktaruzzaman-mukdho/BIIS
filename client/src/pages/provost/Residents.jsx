@@ -84,9 +84,75 @@ export default function Residents() {
         />
       </div>
 
-      <div>
-        {filtered.length} resident(s) found
-      </div>
+      
+      {filtered.length === 0 ? (
+        <div className="empty-state">
+          <div className="icon">🏠</div>
+          <h3>No residents found</h3>
+          <p>{search ? 'Try a different search term' : 'No residents in your hall yet'}</p>
+        </div>
+      ) : (
+        <div className="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>ID</th>
+                <th>Department</th>
+                <th>Room</th>
+                <th>Seat</th>
+                <th>Dining Days</th>
+                <th>Absences</th>
+                <th>Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(r => (
+                <tr key={r.id}>
+                  <td>
+                    <div>
+                      <strong>{r.student_name}</strong>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{r.student_email}</div>
+                    </div>
+                  </td>
+                  <td>{r.student_roll || '—'}</td>
+                  <td>{r.department || '—'}</td>
+                  <td>
+                    <span className="badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                      {r.room_number} (F{r.floor})
+                    </span>
+                  </td>
+                  <td>Seat {r.seat_number}</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      {r.dining_days?.length > 0 ? r.dining_days.map((d, i) => (
+                        <span key={i} style={{
+                          fontSize: '0.72rem',
+                          padding: '2px 8px',
+                          background: 'var(--info-bg)',
+                          color: 'var(--info)',
+                          borderRadius: '50px',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {d.slice(0, 3)}
+                        </span>
+                      )) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`badge ${r.absence_count > 3 ? 'badge-denied' : r.absence_count > 0 ? 'badge-pending' : 'badge-approved'}`}>
+                      {r.absence_count}
+                    </span>
+                  </td>
+                  <td style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    {new Date(r.assigned_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
