@@ -65,6 +65,7 @@ export default function SeatChanges() {
           </div>
         </div>
         <div className="stat-card">
+          <div className="stat-icon purple">🔄</div>
           <div className="stat-info">
             <h3>{seatChanges.length}</h3>
             <p>Total Requests</p>
@@ -86,6 +87,7 @@ export default function SeatChanges() {
 
       {display.length === 0 ? (
         <div className="empty-state">
+          <div className="icon">🔄</div>
           <h3>No seat change requests</h3>
           <p>No requests match the current filter</p>
         </div>
@@ -106,10 +108,10 @@ export default function SeatChanges() {
               </span>
             </div>
 
-            <div>
+            <div style={{ display: 'flex', gap: '24px', marginTop: '12px', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
               {sc.current_room && (
                 <span>
-                  Current: <strong style={{ color: 'var(--text-primary)' }}>Room {sc.current_room}</strong> (Seat {sc.current_seat_number}, Floor {sc.current_floor})
+                  📍 Current: <strong style={{ color: 'var(--text-primary)' }}>Room {sc.current_room}</strong> (Seat {sc.current_seat_number}, Floor {sc.current_floor})
                 </span>
               )}
               {sc.preferred_room && (
@@ -129,18 +131,18 @@ export default function SeatChanges() {
             )}
 
             {sc.status === 'pending' && (
-              <div className="btn-group">
+              <div className="btn-group" style={{ marginTop: '16px' }}>
                 <button
                   className="btn btn-success btn-sm"
                   onClick={() => { setActionModal({ id: sc.id, action: 'approved', name: sc.student_name }); setFeedback(''); }}
                 >
-                Approve
+                 ✅ Approve
                 </button>
                 <button
                   className="btn btn-danger btn-sm"
                   onClick={() => { setActionModal({ id: sc.id, action: 'denied', name: sc.student_name }); setFeedback(''); }}
                 >
-                  Deny
+                  ❌ Deny
                 </button>
               </div>
             )}
@@ -152,7 +154,7 @@ export default function SeatChanges() {
         <div className="modal-overlay" onClick={() => setActionModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <h2>
-              {actionModal.action === 'approved' ? 'Approve' : 'Deny'} Seat Change
+              {actionModal.action === 'approved' ? '✅ Approve' : '❌ Deny'} Seat Change
             </h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
               {actionModal.action === 'approved'
