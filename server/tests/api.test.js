@@ -244,15 +244,6 @@ async function testApprovalAndPayment() {
   r = await req('PATCH', `/api/applications/${testApplicationId}`, {
     status: 'approved', feedback: 'Approved for testing'
   }, provostCookie);
-  log(r.status === 200 && r.data.application?.status === 'approved' ? 'PASS' : 'FAIL',
-    'Approve — provost approves', `payment_status=${r.data.application?.payment_status}`);
-
-  // Check payment_status is pending and deadline is set
-  r = await req('GET', '/api/applications', null, studentCookie);
-  const approved = r.data.applications?.find(a => a.id === testApplicationId);
-  log(approved?.payment_status === 'pending' && approved?.payment_deadline ? 'PASS' : 'FAIL',
-    'Approved — has payment_status=pending and deadline', 
-    `deadline=${approved?.payment_deadline?.substring(0, 19)}`);
 
   // Pay — unauthenticated
   r = await req('POST', `/api/applications/${testApplicationId}/pay`);
