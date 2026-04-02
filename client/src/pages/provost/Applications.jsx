@@ -5,6 +5,7 @@ export default function Applications() {
   const [applications, setApplications] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [expandedAppId, setExpandedAppId] = useState(null);
   const [actionModal, setActionModal] = useState(null);
   const [feedback, setFeedback] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -19,6 +20,7 @@ export default function Applications() {
       const params = filter ? { status: filter } : {};
       const res = await api.get('/applications', { params });
       setApplications(res.data.applications);
+      setExpandedAppId(null);
     } catch (err) {
       console.error(err);
     } finally {
@@ -114,7 +116,7 @@ export default function Applications() {
                   {app.room_number ? `Room ${app.room_number} (Floor ${app.floor})` : 'No room preference'}
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="application-header-actions">
                 {app.ai_score && (
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -149,89 +151,125 @@ export default function Applications() {
                 <span className={`badge badge-${app.status}`}>
                   {app.status.toUpperCase()}
                 </span>
+                <button
+                  type="button"
+                  className="application-toggle"
+                  onClick={() => setExpandedAppId(expandedAppId === app.id ? null : app.id)}
+                  aria-expanded={expandedAppId === app.id}
+                  aria-controls={`application-details-${app.id}`}
+                >
+                  <span>{expandedAppId === app.id ? '▲' : '▼'}</span>
+                  <span>{expandedAppId === app.id ? 'Hide details' : 'View details'}</span>
+                </button>
               </div>
             </div>
             <div className="reason-text">{app.reason}</div>
 
-            {app.document_url && (
-              <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>
-                📎 <a href={app.document_url} target="_blank" rel="noopener noreferrer">View document</a>
-              </p>
-            )}
-
-            {/* AI Score & Factor Breakdown */}
-            {(app.ai_score || app.ai_summary) && (
-              <div className="ai-section" style={{ marginTop: '12px' }}>
-                <div className="ai-label">🤖 AI Priority Analysis</div>
-
-                {app.ai_score && (
-                  <div style={{ margin: '8px 0 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                      <span style={{ fontWeight: 700, fontSize: '1.1rem', color: app.ai_score >= 7 ? '#2E7D32' : app.ai_score >= 4 ? '#E65100' : '#C62828' }}>
-                        Priority: {app.ai_score}/10
-                      </span>
+            {expandedAppId === app.id && (
+              <div className="application-details" id={`application-details-${app.id}`}>
+                <div className="details-grid">
+                  <div className="detail-block">
+                    <h4>Student Details</h4>
+                    <div className="detail-list">
+                      <div><span>Name</span><strong>{app.student_name}</strong></div>
+                      <div><span>Roll</span><strong>{app.student_roll || '—'}</strong></div>
+                      <div><span>Email</span><strong>{app.student_email || '—'}</strong></div>
+                      <div><span>Department</span><strong>{app.department || '—'}</strong></div>
+                      <div><span>Year</span><strong>{app.year || '—'}</strong></div>
                     </div>
+                  </div>
 
-                    {/* Score bar */}
-                    <div style={{ height: '8px', background: '#eee', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', width: `${app.ai_score * 10}%`, borderRadius: '4px',
-                        background: app.ai_score >= 7 ? '#4CAF50' : app.ai_score >= 4 ? '#FF9800' : '#F44336',
-                        transition: 'width 0.3s'
-                      }}></div>
+                  <div className="detail-block">
+                    <h4>Application Details</h4>
+                    <div className="detail-list">
+                      <div><span>Status</span><strong>{app.status.toUpperCase()}</strong></div>
+                      <div><span>Hall</span><strong>{app.hall_name || '—'}</strong></div>
+                      <div><span>Room Preference</span><strong>{app.room_number ? `Room ${app.room_number} (Floor ${app.floor})` : 'None'}</strong></div>
+                      <div><span>Payment Status</span><strong>{app.payment_status ? app.payment_status.toUpperCase() : '—'}</strong></div>
+                      <div><span>Submitted</span><strong>{app.created_at ? new Date(app.created_at).toLocaleString() : '—'}</strong></div>
                     </div>
+                  </div>
+                </div>
+
+                {(app.ai_score || app.ai_summary) && (
+                  <div className="ai-section">
+                    <div className="ai-label">🤖 AI Priority Analysis</div>
+
+                    {app.ai_score && (
+                      <div style={{ margin: '8px 0 12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 700, fontSize: '1.1rem', color: app.ai_score >= 7 ? '#2E7D32' : app.ai_score >= 4 ? '#E65100' : '#C62828' }}>
+                            Priority: {app.ai_score}/10
+                          </span>
+                        </div>
+
+                        <div style={{ height: '8px', background: '#eee', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{
+                            height: '100%', width: `${app.ai_score * 10}%`, borderRadius: '4px',
+                            background: app.ai_score >= 7 ? '#4CAF50' : app.ai_score >= 4 ? '#FF9800' : '#F44336',
+                            transition: 'width 0.3s'
+                          }}></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {(() => {
+                      let factors = app.ai_reasons;
+                      if (typeof factors === 'string') {
+                        try { factors = JSON.parse(factors); } catch { factors = []; }
+                      }
+
+                      if (Array.isArray(factors) && factors.length > 0) {
+                        return (
+                          <div style={{ marginTop: '8px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                              <thead>
+                                <tr style={{ background: '#f5f0e5' }}>
+                                  <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd', fontWeight: 700 }}>Factor</th>
+                                  <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd', fontWeight: 700 }}>Assessment</th>
+                                  <th style={{ padding: '6px 10px', textAlign: 'center', borderBottom: '1px solid #ddd', fontWeight: 700, width: '70px' }}>Impact</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {factors.map((f, i) => (
+                                  <tr key={i}>
+                                    <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                      {f.factor}
+                                    </td>
+                                    <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', color: '#555' }}>
+                                      {f.detail}
+                                      {f.points !== undefined && <span style={{ marginLeft: '6px', fontWeight: 700, color: '#8B0000' }}>({f.points} pts)</span>}
+                                    </td>
+                                    <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', textAlign: 'center' }}>
+                                      <span style={{
+                                        padding: '1px 8px', fontSize: '0.72rem', fontWeight: 700,
+                                        background: f.impact === 'high' ? '#FFEBEE' : f.impact === 'medium' ? '#FFF8E1' : '#F5F5F5',
+                                        color: f.impact === 'high' ? '#C62828' : f.impact === 'medium' ? '#E65100' : '#777',
+                                        border: `1px solid ${f.impact === 'high' ? '#EF9A9A' : f.impact === 'medium' ? '#FFE082' : '#ddd'}`
+                                      }}>
+                                        {(f.impact || 'low').toUpperCase()}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {app.ai_summary && (
+                      <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>{app.ai_summary}</p>
+                    )}
                   </div>
                 )}
 
-                {(() => {
-                  let factors = app.ai_reasons;
-                  if (typeof factors === 'string') {
-                    try { factors = JSON.parse(factors); } catch { factors = []; }
-                  }
-
-                  if (Array.isArray(factors) && factors.length > 0) {
-                    return (
-                      <div style={{ marginTop: '8px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                          <thead>
-                            <tr style={{ background: '#f5f0e5' }}>
-                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd', fontWeight: 700 }}>Factor</th>
-                              <th style={{ padding: '6px 10px', textAlign: 'left', borderBottom: '1px solid #ddd', fontWeight: 700 }}>Assessment</th>
-                              <th style={{ padding: '6px 10px', textAlign: 'center', borderBottom: '1px solid #ddd', fontWeight: 700, width: '70px' }}>Impact</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {factors.map((f, i) => (
-                              <tr key={i}>
-                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                                  {f.factor}
-                                </td>
-                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', color: '#555' }}>
-                                  {f.detail}
-                                  {f.points !== undefined && <span style={{ marginLeft: '6px', fontWeight: 700, color: '#8B0000' }}>({f.points} pts)</span>}
-                                </td>
-                                <td style={{ padding: '6px 10px', borderBottom: '1px solid #eee', textAlign: 'center' }}>
-                                  <span style={{
-                                    padding: '1px 8px', fontSize: '0.72rem', fontWeight: 700,
-                                    background: f.impact === 'high' ? '#FFEBEE' : f.impact === 'medium' ? '#FFF8E1' : '#F5F5F5',
-                                    color: f.impact === 'high' ? '#C62828' : f.impact === 'medium' ? '#E65100' : '#777',
-                                    border: `1px solid ${f.impact === 'high' ? '#EF9A9A' : f.impact === 'medium' ? '#FFE082' : '#ddd'}`
-                                  }}>
-                                    {(f.impact || 'low').toUpperCase()}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
-
-                {app.ai_summary && (
-                  <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>{app.ai_summary}</p>
+                {app.document_url && (
+                  <p style={{ marginTop: '12px', fontSize: '0.85rem' }}>
+                    📎 <a href={app.document_url} target="_blank" rel="noopener noreferrer">View document</a>
+                  </p>
                 )}
               </div>
             )}
