@@ -286,7 +286,11 @@ router.post('/:id/pay', requireAuth, async (req, res) => {
       [id]
     );
 
-    res.json({ application: result.rows[0], message: 'Payment successful! Seat has been assigned.' });
+    res.json({
+      message: 'Payment successful! Seat has been assigned.',
+      payment_status: result.rows[0].payment_status,
+      application: result.rows[0]
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -344,7 +348,7 @@ router.get('/resident-check', requireAuth, async (req, res) => {
       return res.json({ isResident: false });
     }
     const result = await pool.query(
-      `SELECT r.id, rm.room_number, s.seat_number, h.name AS hall_name
+      `SELECT r.id, rm.room_number, s.seat_number, h.name AS hall_name, h.name AS hall
        FROM residents r
        JOIN seats s ON r.seat_id = s.id
        JOIN rooms rm ON s.room_id = rm.id
