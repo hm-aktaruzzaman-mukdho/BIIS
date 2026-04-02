@@ -167,6 +167,8 @@ async function migrate() {
 
     // Create sample students
     const studentPass = await bcrypt.hash('student123', 10);
+    const hall1Id = h1.rows[0].id;
+    const hall2Id = h2.rows[0].id;
     const students = [
       ['Rahim Uddin', 'rahim@student.edu', '2021001', 'Computer Science', 3],
       ['Fatima Begum', 'fatima@student.edu', '2021002', 'Electrical Engineering', 3],
