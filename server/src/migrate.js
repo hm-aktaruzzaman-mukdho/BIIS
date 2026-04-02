@@ -88,7 +88,6 @@ const schema = `
   );
 `;
 
-
 async function migrate() {
   const client = await pool.connect();
   try {
@@ -117,7 +116,6 @@ async function migrate() {
        VALUES ($1, $2, $3, 'provost', $4) RETURNING id`,
       ['Dr. Nasreen Akter', 'provost2@biis.edu', provostPass, 'Electrical Engineering']
     );
-
 
     // Create halls
     const h1 = await client.query(
@@ -165,16 +163,11 @@ async function migrate() {
       }
     }
 
-    // Create sample students
+    // Create sample students (with hall assignment)
     const studentPass = await bcrypt.hash('student123', 10);
     const hall1Id = h1.rows[0].id;
     const hall2Id = h2.rows[0].id;
     const students = [
-      ['Rahim Uddin', 'rahim@student.edu', '2021001', 'Computer Science', 3],
-      ['Fatima Begum', 'fatima@student.edu', '2021002', 'Electrical Engineering', 3],
-      ['Arif Hasan', 'arif@student.edu', '2022001', 'Physics', 2],
-      ['Nusrat Jahan', 'nusrat@student.edu', '2022002', 'Mathematics', 2],
-      ['Tanvir Ahmed', 'tanvir@student.edu', '2023001', 'Chemistry', 1],
       ['Rahim Uddin', 'rahim@student.edu', '2021001', 'Computer Science', 3, hall1Id],
       ['Fatima Begum', 'fatima@student.edu', '2021002', 'Electrical Engineering', 3, hall1Id],
       ['Arif Hasan', 'arif@student.edu', '2022001', 'Physics', 2, hall1Id],
@@ -238,7 +231,6 @@ async function migrate() {
     console.log('   Student: arif@student.edu / student123');
     console.log('   Student: nusrat@student.edu / student123');
     console.log('   Student: tanvir@student.edu / student123');
-
 
   } catch (err) {
     console.error('❌ Migration failed:', err.message);
