@@ -8,13 +8,13 @@ export default function Register() {
     name: '', email: '', password: '', role: 'student',
     student_id: '', department: '', year: '', hall_id: ''
   });
+  const [halls, setHalls] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-
-   useEffect(() => {
+  useEffect(() => {
     loadHalls();
   }, []);
 
@@ -24,7 +24,7 @@ export default function Register() {
       setHalls(res.data.halls);
     } catch (err) { /* halls list may fail before login, ignore */ }
   }
-  
+
   function updateField(field, value) {
     setForm(prev => ({ ...prev, [field]: value }));
   }
@@ -49,9 +49,10 @@ export default function Register() {
 
   return (
     <div className="auth-page">
+      {/* Header */}
       <header className="biis-header">
         <div className="header-main">
-          <div className="header-logo">🏛️</div> {/* fix this */}
+          <div className="header-logo">🏛️</div>
           <div className="header-text">
             <div className="bangla">বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয়</div>
             <div className="english">BUET Institutional Information System</div>
@@ -59,14 +60,16 @@ export default function Register() {
         </div>
       </header>
 
+      {/* Nav */}
       <nav className="biis-nav">
         <a href="/">BIIS Home</a>
       </nav>
 
+      {/* Content */}
       <div className="auth-content">
         <div className="auth-sidebar">
           <a href="#" className="sidebar-webmail" style={{ marginTop: 0 }}>
-            📧 BUET WebMail {/* fix this */}
+            📧 BUET WebMail
           </a>
         </div>
         <div className="auth-main">
@@ -78,7 +81,7 @@ export default function Register() {
             <form onSubmit={handleSubmit}>
               <div className="role-selector">
                 <button type="button" className={`role-btn ${form.role === 'student' ? 'active' : ''}`}
-                  onClick={() => updateField('role', 'student')}>🎓Student</button>
+                  onClick={() => updateField('role', 'student')}>🎓 Student</button>
                 <button type="button" className={`role-btn ${form.role === 'provost' ? 'active' : ''}`}
                   onClick={() => updateField('role', 'provost')}>🏛️ Provost</button>
               </div>
@@ -116,15 +119,10 @@ export default function Register() {
                       <option value="CSE">CSE</option>
                       <option value="EEE">EEE</option>
                       <option value="ME">ME</option>
-                      <option value="CE">CE</option>
                       <option value="IPE">IPE</option>
-                      <option value="MME">MME</option>
-                      <option value="ARCH">ARCH</option>
-                      <option value="NAME">NAME</option>
                       <option value="BME">BME</option>
+                      <option value="CE">CE</option>
                       <option value="NCE">NCE</option>
-                      <option value="URP">URP</option>
-                      <option value="WRE">WRE</option>
                     </select>
                   </div>
 
@@ -149,7 +147,6 @@ export default function Register() {
                       ))}
                     </select>
                   </div>
-
                 </>
               )}
 
@@ -165,12 +162,15 @@ export default function Register() {
                 </button>
               </div>
             </form>
+
             <div className="auth-footer">
               Already have an account? <Link to="/login">Sign In Here.</Link>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
       <footer className="biis-footer">
         Bangladesh University of Engineering & Technology (BUET), Dhaka-1000, Bangladesh. Tel: (880 2) 9665650 Fax: (880 2) 8613046. © All rights reserved, BUET
       </footer>
